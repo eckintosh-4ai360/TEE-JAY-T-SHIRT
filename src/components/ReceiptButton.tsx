@@ -5,28 +5,14 @@ import { FileText, Loader2 } from 'lucide-react'
 import type { SerializedOrder } from '@/lib/utils'
 
 // ── helpers ───────────────────────────────────────────────────────────────────
-// We manually format instead of using Intl.NumberFormat because jsPDF's
-// built-in Helvetica font is Latin-1 and maps ₵ (U+20B5) low-byte → µ.
-// After loading a Unicode font we prefix with the real ₵ sign.
-function fmtGHS(n: number) {
-  const formatted = n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  return `\u20b5${formatted}`   // ₵
+function fmtMoney(n: number) {
+  return '₵' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 function fmtDate(iso: string | null | undefined) {
-  if (!iso) return '\u2014'
+  if (!iso) return '—'
   return new Date(iso).toLocaleDateString('en-GB', {
     day: '2-digit', month: 'long', year: 'numeric',
   })
-}
-
-/** Fetch Roboto Regular TTF from Google and return base64 string */
-async function loadRobotoBase64(): Promise<string> {
-  const url = 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.ttf'
-  const buf = await fetch(url).then((r) => r.arrayBuffer())
-  let bin = ''
-  const bytes = new Uint8Array(buf)
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i])
-  return btoa(bin)
 }
 
 interface Props { order: SerializedOrder }
@@ -34,199 +20,238 @@ interface Props { order: SerializedOrder }
 export default function ReceiptButton({ order }: Props) {
   const [loading, setLoading] = useState(false)
 
-  async function generate() {
+  function generate() {
     setLoading(true)
     try {
-      const jsPDF     = (await import('jspdf')).default
-      const autoTable = (await import('jspdf-autotable')).default
+      const colorRows = order.colors.map((c) => `
+        <tr>
+          <td>${c.name || '—'}</td>
+          <td class="num">${c.qty.toLocaleString()}</td>
+          <td class="num">${fmtMoney(order.unitPrice)}</td>
+          <td class="num">${fmtMoney(c.qty * order.unitPrice)}</td>
+        </tr>`).join('')
 
-      // Load Unicode font so ₵ renders correctly (built-in Helvetica is Latin-1)
-      const robotoB64 = await loadRobotoBase64()
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipt – ${order.clientName}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 13px;
+      color: #0f172a;
+      background: #fff;
+      padding: 0;
+    }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 0;
+      background: #fff;
+    }
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%);
+      color: #fff;
+      padding: 28px 32px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .brand-name  { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .brand-tagline { font-size: 11px; opacity: 0.85; margin-top: 4px; }
+    .receipt-label { text-align: right; }
+    .receipt-word  { font-size: 20px; font-weight: 800; letter-spacing: 2px; }
+    .receipt-ref   { font-size: 11px; opacity: 0.85; margin-top: 4px; }
+    /* ── Body ── */
+    .body { padding: 28px 32px; }
+    /* ── Info row ── */
+    .info-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+    .info-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+                  letter-spacing: 1px; color: #14b8a6; margin-bottom: 10px; }
+    .info-row-item { display: flex; justify-content: space-between; margin-top: 5px; }
+    .info-key   { color: #64748b; font-size: 12px; }
+    .info-val   { font-weight: 600; font-size: 12px; color: #0f172a; }
+    .client-name { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .client-sub  { font-size: 12px; color: #64748b; margin-top: 3px; }
+    /* ── Section title ── */
+    .section-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #475569; margin-bottom: 10px;
+    }
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    thead tr { background: #14b8a6; color: #fff; }
+    thead th {
+      padding: 10px 12px; text-align: left; font-size: 11px;
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    thead th.num { text-align: right; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody td { padding: 9px 12px; font-size: 12.5px; border-bottom: 1px solid #e2e8f0; }
+    tfoot tr { background: #f1f5f9; font-weight: 700; }
+    tfoot td { padding: 10px 12px; font-size: 13px; border-top: 2px solid #cbd5e1; }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    /* ── Payment summary ── */
+    .payment-wrap { display: flex; justify-content: flex-end; margin-bottom: 28px; }
+    .payment-box {
+      width: 220px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .pay-row {
+      display: flex; justify-content: space-between;
+      padding: 9px 14px; font-size: 12.5px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .pay-row:last-child { border-bottom: none; }
+    .pay-row.total { font-weight: 700; font-size: 14px; background: #f8fafc; }
+    .pay-key { color: #64748b; }
+    .pay-val { font-variant-numeric: tabular-nums; }
+    .paid    { color: #10b981; }
+    .owed    { color: #ef4444; }
+    .settled { color: #10b981; }
+    /* ── Thank you ── */
+    .thankyou {
+      background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%);
+      border: 1px solid #99f6e4;
+      border-radius: 10px;
+      text-align: center;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+    .thankyou-main { font-size: 15px; font-weight: 700; color: #0f766e; }
+    .thankyou-sub  { font-size: 11.5px; color: #64748b; margin-top: 4px; }
+    /* ── Footer ── */
+    .footer {
+      text-align: center; color: #94a3b8; font-size: 10px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+    /* ── Print ── */
+    @media print {
+      @page { size: A4; margin: 0; }
+      body { padding: 0; }
+      .page { width: 210mm; min-height: 297mm; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="brand-name">TEE-JAY</div>
+      <div class="brand-tagline">T-SHIRT PRINTING &amp; PROFESSIONAL GARMENT SERVICES</div>
+    </div>
+    <div class="receipt-label">
+      <div class="receipt-word">RECEIPT</div>
+      <div class="receipt-ref">#${order.id.slice(-8).toUpperCase()}</div>
+      <div class="receipt-ref">Date: ${fmtDate(order.createdAt)}</div>
+    </div>
+  </div>
 
-      // ── Document setup ──────────────────────────────────────────────────────
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  <div class="body">
+    <!-- Info row -->
+    <div class="info-row">
+      <div class="info-box">
+        <div class="info-label">Bill To</div>
+        <div class="client-name">${order.clientName}</div>
+        ${order.clientPhone ? `<div class="client-sub">📞 ${order.clientPhone}</div>` : ''}
+        ${order.clientEmail ? `<div class="client-sub">✉ ${order.clientEmail}</div>` : ''}
+      </div>
+      <div class="info-box">
+        <div class="info-label">Order Details</div>
+        <div class="info-row-item"><span class="info-key">Design</span><span class="info-val">${order.design || '—'}</span></div>
+        <div class="info-row-item"><span class="info-key">Status</span><span class="info-val">${order.status}</span></div>
+        <div class="info-row-item"><span class="info-key">Due date</span><span class="info-val">${fmtDate(order.dueDate)}</span></div>
+        <div class="info-row-item"><span class="info-key">Unit price</span><span class="info-val">${fmtMoney(order.unitPrice)}</span></div>
+      </div>
+    </div>
 
-      doc.addFileToVFS('Roboto-Regular.ttf', robotoB64)
-      doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal')
-      doc.setFont('Roboto')
-      const PW  = 210  // A4 width mm
-      const PH  = 297  // A4 height mm
-      const ML  = 18   // margin left
-      const MR  = PW - ML // margin right
+    <!-- Colour breakdown -->
+    <div class="section-title">Colour Breakdown</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Colour / Style</th>
+          <th class="num">Qty</th>
+          <th class="num">Unit Price</th>
+          <th class="num">Line Total</th>
+        </tr>
+      </thead>
+      <tbody>${colorRows}</tbody>
+      <tfoot>
+        <tr>
+          <td><strong>Total</strong></td>
+          <td class="num">${order.totalQty.toLocaleString()}</td>
+          <td></td>
+          <td class="num">${fmtMoney(order.totalAmount)}</td>
+        </tr>
+      </tfoot>
+    </table>
 
-      // ── Brand colour palette ────────────────────────────────────────────────
-      const TEAL  : [number,number,number] = [20,  184, 166]   // brand teal
-      const DARK  : [number,number,number] = [15,  23,  42 ]   // slate-900
-      const MID   : [number,number,number] = [71,  85,  105]   // slate-600
-      const LIGHT : [number,number,number] = [241, 245, 249]   // slate-100
-      const WHITE : [number,number,number] = [255, 255, 255]
-      const RED   : [number,number,number] = [239, 68,  68 ]
-      const GREEN : [number,number,number] = [16,  185, 129]
+    <!-- Payment summary -->
+    <div class="payment-wrap">
+      <div class="payment-box">
+        <div class="pay-row">
+          <span class="pay-key">Subtotal</span>
+          <span class="pay-val">${fmtMoney(order.totalAmount)}</span>
+        </div>
+        <div class="pay-row">
+          <span class="pay-key">Amount Paid</span>
+          <span class="pay-val paid">${fmtMoney(order.amountPaid)}</span>
+        </div>
+        <div class="pay-row total">
+          <span class="pay-key">Balance Due</span>
+          <span class="pay-val ${order.balance > 0 ? 'owed' : 'settled'}">${fmtMoney(order.balance)}</span>
+        </div>
+      </div>
+    </div>
 
-      // ── Header banner ───────────────────────────────────────────────────────
-      doc.setFillColor(...TEAL)
-      doc.rect(0, 0, PW, 38, 'F')
+    <!-- Thank you -->
+    <div class="thankyou">
+      <div class="thankyou-main">Thank you for choosing Tee-Jay!</div>
+      <div class="thankyou-sub">Please keep this receipt for your records.</div>
+    </div>
 
-      // Company name
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(22)
-      doc.setTextColor(...WHITE)
-      doc.text('TEE-JAY', ML, 17)
+    <!-- Footer -->
+    <div class="footer">
+      Generated ${new Date().toLocaleString('en-GH')} &nbsp;|&nbsp; Ref: ${order.id}
+    </div>
+  </div>
+</div>
+<script>window.onload = function(){ window.print(); };<\/script>
+</body>
+</html>`
 
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(9)
-      doc.setTextColor(200, 250, 250)
-      doc.text('T-SHIRT PRINTING', ML, 23)
-      doc.text('Professional Garment Printing Services', ML, 29)
-
-      // "RECEIPT" badge top-right
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(18)
-      doc.setTextColor(...WHITE)
-      doc.text('RECEIPT', MR, 17, { align: 'right' })
-      doc.setFontSize(8)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(200, 250, 250)
-      doc.text(`#${order.id.slice(-8).toUpperCase()}`, MR, 24, { align: 'right' })
-      doc.text(`Date: ${fmtDate(order.createdAt)}`, MR, 30, { align: 'right' })
-
-      // ── Two-column info row ─────────────────────────────────────────────────
-      let y = 50
-
-      // Client box
-      doc.setFillColor(...LIGHT)
-      doc.roundedRect(ML, y, 82, 36, 3, 3, 'F')
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(7.5)
-      doc.setTextColor(...TEAL)
-      doc.text('BILL TO', ML + 5, y + 7)
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(10)
-      doc.setTextColor(...DARK)
-      doc.text(order.clientName, ML + 5, y + 14)
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8.5)
-      doc.setTextColor(...MID)
-      if (order.clientPhone) doc.text(`📞  ${order.clientPhone}`, ML + 5, y + 21)
-      if (order.clientEmail) doc.text(`✉  ${order.clientEmail}`, ML + 5, y + 27, { maxWidth: 72 })
-
-      // Order info box
-      const OX = ML + 88
-      doc.setFillColor(...LIGHT)
-      doc.roundedRect(OX, y, 82, 36, 3, 3, 'F')
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(7.5)
-      doc.setTextColor(...TEAL)
-      doc.text('ORDER DETAILS', OX + 5, y + 7)
-
-      const infoRows = [
-        ['Design',   order.design || '—'],
-        ['Status',   order.status],
-        ['Due date', fmtDate(order.dueDate)],
-        ['Unit price', fmtGHS(order.unitPrice)],
-      ]
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8.5)
-      doc.setTextColor(...MID)
-      infoRows.forEach(([k, v], i) => {
-        doc.setTextColor(...MID)
-        doc.text(k, OX + 5, y + 14 + i * 6)
-        doc.setTextColor(...DARK)
-        doc.setFont('helvetica', 'bold')
-        doc.text(v, OX + 77, y + 14 + i * 6, { align: 'right' })
-        doc.setFont('helvetica', 'normal')
-      })
-
-      // ── Colour breakdown table ──────────────────────────────────────────────
-      y += 44
-
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(9)
-      doc.setTextColor(...DARK)
-      doc.text('Colour Breakdown', ML, y)
-      y += 4
-
-      autoTable(doc, {
-        startY: y,
-        head: [['Colour / Style', 'Qty', 'Unit Price', 'Line Total']],
-        body: order.colors.map((c) => [
-          c.name || '\u2014',
-          c.qty.toLocaleString(),
-          fmtGHS(order.unitPrice),
-          fmtGHS(c.qty * order.unitPrice),
-        ]),
-        foot: [['', order.totalQty.toLocaleString(), '', fmtGHS(order.totalAmount)]],
-        styles:         { fontSize: 9, cellPadding: 3.5, textColor: DARK, font: 'Roboto' },
-        headStyles:     { fillColor: TEAL, textColor: WHITE, fontStyle: 'bold', fontSize: 8, font: 'Roboto' },
-        footStyles:     { fillColor: LIGHT, textColor: DARK, fontStyle: 'bold', font: 'Roboto' },
-        alternateRowStyles: { fillColor: [248, 250, 252] as [number,number,number] },
-        columnStyles:   { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
-        margin:         { left: ML, right: ML },
-        tableLineColor: [226, 232, 240] as [number,number,number],
-        tableLineWidth: 0.2,
-      })
-
-      y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8
-
-      // ── Payment summary box ─────────────────────────────────────────────────
-      const bw = 90
-      const bx = MR - bw
-
-      const payRows = [
-        { label: 'Subtotal',     value: fmtGHS(order.totalAmount), bold: false },
-        { label: 'Amount Paid',  value: fmtGHS(order.amountPaid),  bold: false, color: GREEN },
-        { label: 'Balance Due',  value: fmtGHS(order.balance),     bold: true,  color: order.balance > 0 ? RED : GREEN },
-      ]
-
-      let py = y
-      payRows.forEach(({ label, value, bold, color }) => {
-        doc.setFontSize(9)
-        doc.setTextColor(...MID)
-        doc.setFont('helvetica', 'normal')
-        doc.text(label, bx, py)
-        doc.setFont('helvetica', bold ? 'bold' : 'normal')
-        doc.setTextColor(...(color ?? DARK as [number,number,number]))
-        doc.text(value, MR, py, { align: 'right' })
-        // Divider
-        doc.setDrawColor(226, 232, 240)
-        doc.setLineWidth(0.2)
-        doc.line(bx, py + 2, MR, py + 2)
-        py += 9
-      })
-
-      // Highlight balance row
-      if (order.balance > 0) {
-        doc.setFillColor(254, 242, 242)
-        doc.roundedRect(bx - 3, py - 9 - 7, bw + 3, 10, 2, 2, 'F')
-      } else {
-        doc.setFillColor(236, 253, 245)
-        doc.roundedRect(bx - 3, py - 9 - 7, bw + 3, 10, 2, 2, 'F')
+      const win = window.open('', '_blank', 'width=794,height=1123')
+      if (!win) {
+        alert('Please allow pop-ups for this site to generate receipts.')
+        return
       }
-
-      // ── Thank you note ──────────────────────────────────────────────────────
-      y = Math.max(py + 8, y + 50)
-
-      doc.setFillColor(...LIGHT)
-      doc.roundedRect(ML, y, PW - ML * 2, 18, 3, 3, 'F')
-      doc.setFont('helvetica', 'bolditalic')
-      doc.setFontSize(9.5)
-      doc.setTextColor(...TEAL)
-      doc.text('Thank you for choosing Tee-Jay!', PW / 2, y + 7, { align: 'center' })
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(8)
-      doc.setTextColor(...MID)
-      doc.text('Please keep this receipt for your records.', PW / 2, y + 13, { align: 'center' })
-
-      // ── Footer ──────────────────────────────────────────────────────────────
-      doc.setFontSize(7.5)
-      doc.setTextColor(...MID)
-      doc.text(`Generated ${new Date().toLocaleString('en-GH')}  |  Ref: ${order.id}`, PW / 2, PH - 10, { align: 'center' })
-
-      // ── Save ────────────────────────────────────────────────────────────────
-      const filename = `receipt-${order.clientName.replace(/\s+/g, '-')}-${order.id.slice(-6)}.pdf`
-      doc.save(filename)
+      win.document.write(html)
+      win.document.close()
     } catch (err) {
-      console.error('Receipt generation failed:', err)
+      console.error('Receipt error:', err)
       alert('Could not generate receipt. Please try again.')
     } finally {
       setLoading(false)
@@ -239,7 +264,7 @@ export default function ReceiptButton({ order }: Props) {
       disabled={loading}
       className="btn-secondary btn-sm flex items-center gap-2"
       id="print-receipt-btn"
-      title="Download PDF receipt"
+      title="Print / Save PDF receipt"
     >
       {loading
         ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
