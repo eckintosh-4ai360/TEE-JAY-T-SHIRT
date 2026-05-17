@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import UserMenu from '@/components/UserMenu'
 import { LayoutDashboard, ListOrdered, PlusCircle, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
@@ -21,7 +22,7 @@ export default function Navbar() {
 
         {/* Brand */}
         <Link href="/" className="flex items-center gap-3 group" onClick={() => setMobileOpen(false)}>
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20 transition-transform duration-300 group-hover:scale-105">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/20 transition-transform duration-300 group-hover:scale-105">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z" />
             </svg>
@@ -55,11 +56,15 @@ export default function Navbar() {
           <Link href="/orders/new" className="btn-primary btn-sm ml-2">
             + New order
           </Link>
+          <div className="ml-1">
+            <UserMenu />
+          </div>
         </nav>
 
         {/* Mobile: theme toggle + hamburger */}
         <div className="flex items-center gap-2 sm:hidden">
           <ThemeToggle />
+          <UserMenu />
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white/50 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
