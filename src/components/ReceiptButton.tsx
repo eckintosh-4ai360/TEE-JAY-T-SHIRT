@@ -4,17 +4,29 @@ import { useState } from 'react'
 import { FileText, Loader2 } from 'lucide-react'
 import type { SerializedOrder } from '@/lib/utils'
 
-// ── helpers (can't import server utils in client component) ───────────────────
+// ── helpers ───────────────────────────────────────────────────────────────────
+// We manually format instead of using Intl.NumberFormat because jsPDF's
+// built-in Helvetica font is Latin-1 and maps ₵ (U+20B5) low-byte → µ.
+// After loading a Unicode font we prefix with the real ₵ sign.
 function fmtGHS(n: number) {
-  return new Intl.NumberFormat('en-GH', {
-    style: 'currency', currency: 'GHS', minimumFractionDigits: 2,
-  }).format(n)
+  const formatted = n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return `\u20b5${formatted}`   // ₵
 }
 function fmtDate(iso: string | null | undefined) {
-  if (!iso) return '—'
+  if (!iso) return '\u2014'
   return new Date(iso).toLocaleDateString('en-GB', {
     day: '2-digit', month: 'long', year: 'numeric',
   })
+}
+
+/** Fetch Roboto Regular TTF from Google and return base64 string */
+async function loadRobotoBase64(): Promise<string> {
+  const url = 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.ttf'
+  const buf = await fetch(url).then((r) => r.arrayBuffer())
+  let bin = ''
+  const bytes = new Uint8Array(buf)
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i])
+  return btoa(bin)
 }
 
 interface Props { order: SerializedOrder }
@@ -25,11 +37,18 @@ export default function ReceiptButton({ order }: Props) {
   async function generate() {
     setLoading(true)
     try {
-      const jsPDF    = (await import('jspdf')).default
+      const jsPDF     = (await import('jspdf')).default
       const autoTable = (await import('jspdf-autotable')).default
+
+      // Load Unicode font so ₵ renders correctly (built-in Helvetica is Latin-1)
+      const robotoB64 = await loadRobotoBase64()
 
       // ── Document setup ──────────────────────────────────────────────────────
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+      doc.addFileToVFS('Roboto-Regular.ttf', robotoB64)
+      doc.addFont('Roboto-Regular.ttf', 'Roboto', 'normal')
+      doc.setFont('Roboto')
       const PW  = 210  // A4 width mm
       const PH  = 297  // A4 height mm
       const ML  = 18   // margin left
@@ -131,15 +150,15 @@ export default function ReceiptButton({ order }: Props) {
         startY: y,
         head: [['Colour / Style', 'Qty', 'Unit Price', 'Line Total']],
         body: order.colors.map((c) => [
-          c.name || '—',
+          c.name || '\u2014',
           c.qty.toLocaleString(),
           fmtGHS(order.unitPrice),
           fmtGHS(c.qty * order.unitPrice),
         ]),
         foot: [['', order.totalQty.toLocaleString(), '', fmtGHS(order.totalAmount)]],
-        styles:         { fontSize: 9, cellPadding: 3.5, textColor: DARK },
-        headStyles:     { fillColor: TEAL, textColor: WHITE, fontStyle: 'bold', fontSize: 8 },
-        footStyles:     { fillColor: LIGHT, textColor: DARK, fontStyle: 'bold' },
+        styles:         { fontSize: 9, cellPadding: 3.5, textColor: DARK, font: 'Roboto' },
+        headStyles:     { fillColor: TEAL, textColor: WHITE, fontStyle: 'bold', fontSize: 8, font: 'Roboto' },
+        footStyles:     { fillColor: LIGHT, textColor: DARK, fontStyle: 'bold', font: 'Roboto' },
         alternateRowStyles: { fillColor: [248, 250, 252] as [number,number,number] },
         columnStyles:   { 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' } },
         margin:         { left: ML, right: ML },
