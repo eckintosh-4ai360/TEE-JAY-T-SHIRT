@@ -14,7 +14,6 @@
 
   body {
     @apply bg-[#f0f9fa] text-slate-900 min-h-screen transition-colors duration-300 dark:bg-[#050505] dark:text-slate-100;
-    /* Subtle background grid pattern for futuristic feel */
     background-image: radial-gradient(circle at center, rgba(0,0,0,0.02) 1px, transparent 1px);
     background-size: 24px 24px;
   }
@@ -27,7 +26,7 @@
 @layer components {
   /* ── Form inputs ─────────────────────────────── */
   .input {
-    @apply w-full rounded-xl border border-slate-200 bg-white/50 backdrop-blur-sm px-4 py-2.5 text-sm
+    @apply w-full rounded-xl border border-slate-200 bg-white/50 backdrop-blur-sm px-4 py-3 text-base
            text-slate-900 placeholder-slate-400 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]
            focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-500/10
            disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400
@@ -36,6 +35,8 @@
            dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.02)]
            dark:focus:bg-white/10 dark:focus:border-brand-400 dark:focus:ring-brand-400/20
            dark:disabled:bg-white/5 dark:disabled:text-slate-500;
+    /* Prevent iOS zoom on focus (must be ≥ 16px) */
+    font-size: max(16px, 1rem);
   }
 
   .label {
@@ -44,15 +45,20 @@
 
   /* ── Buttons ──────────────────────────────────── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium
-           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed
-           active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border px-5 py-3 text-sm font-semibold
+           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-offset-0
+           disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]
+           touch-manipulation;
+    /* Minimum 44×44px touch target per Apple HIG */
+    min-height: 44px;
   }
 
   .btn-primary {
-    @apply btn border-transparent bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30
-           hover:from-brand-400 hover:to-brand-500 hover:shadow-brand-500/40 focus:ring-brand-500/30
-           dark:from-brand-600 dark:to-brand-700 dark:shadow-brand-600/20 dark:hover:from-brand-500 dark:hover:to-brand-600;
+    @apply btn border-transparent bg-gradient-to-r from-brand-500 to-brand-600 text-white
+           shadow-lg shadow-brand-500/30 hover:from-brand-400 hover:to-brand-500
+           hover:shadow-brand-500/40 focus:ring-brand-500/30
+           dark:from-brand-600 dark:to-brand-700 dark:shadow-brand-600/20
+           dark:hover:from-brand-500 dark:hover:to-brand-600;
   }
 
   .btn-secondary {
@@ -69,7 +75,8 @@
   }
 
   .btn-sm {
-    @apply px-3 py-1.5 text-xs rounded-lg;
+    @apply px-3 py-2 text-xs rounded-lg;
+    min-height: 36px;
   }
 
   /* ── Cards ────────────────────────────────────── */
@@ -80,9 +87,15 @@
 
   /* ── Stat card ────────────────────────────────── */
   .stat-card {
-    @apply rounded-2xl border border-slate-100 bg-white/50 p-5 backdrop-blur-sm shadow-sm transition-all duration-300
+    @apply rounded-2xl border border-slate-100 bg-white/50 p-4 backdrop-blur-sm shadow-sm transition-all duration-300
            hover:shadow-md hover:border-slate-200
-           dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none dark:hover:bg-white/5 dark:hover:border-white/10;
+           dark:border-white/5 dark:bg-white/[0.02] dark:shadow-none
+           dark:hover:bg-white/5 dark:hover:border-white/10;
+  }
+
+  /* ── Mobile-friendly table alternatives ───────── */
+  .order-card {
+    @apply rounded-2xl border border-slate-100 bg-white/70 backdrop-blur-xl p-4 shadow-sm
+           dark:border-white/10 dark:bg-[#0a0a0a]/70;
   }
 }
-

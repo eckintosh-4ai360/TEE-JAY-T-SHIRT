@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma'
 import StatCard from '@/components/StatCard'
 import OrderRow from '@/components/OrderRow'
 import { serializeOrder, fmtCurrency } from '@/lib/utils'
-import { Shirt, Zap, Rocket, Clock, Users, GitCommit, CheckCircle2, Truck, CreditCard, AlertCircle, Box } from 'lucide-react'
+import { Shirt, Zap, CheckCircle2, Truck, CreditCard, AlertCircle, Box } from 'lucide-react'
 import ReportExporter from '@/components/ReportExporter'
 
-export const dynamic = 'force-dynamic' // always fetch fresh data
+export const dynamic = 'force-dynamic'
 
 async function getStats() {
   const [orders, agg] = await Promise.all([
@@ -48,28 +48,21 @@ async function getStats() {
 export default async function DashboardPage() {
   const stats = await getStats()
 
-  const statusCards = [
-    { label: 'Pending',   count: stats.pending,   status: 'PENDING',   color: 'bg-amber-50 border-amber-200 text-amber-700'  },
-    { label: 'Printing',  count: stats.printing,  status: 'PRINTING',  color: 'bg-blue-50 border-blue-200 text-blue-700'    },
-    { label: 'Completed', count: stats.completed, status: 'COMPLETED', color: 'bg-green-50 border-green-200 text-green-700' },
-    { label: 'Delivered', count: stats.delivered, status: 'DELIVERED', color: 'bg-gray-50 border-gray-200 text-gray-600'   },
-  ]
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-0.5 text-sm text-gray-500">Overview of your printing business</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Overview of your printing business</p>
         </div>
-        <Link href="/orders/new" className="btn-primary">
+        <Link href="/orders/new" className="btn-primary btn-sm hidden sm:inline-flex">
           + New order
         </Link>
       </div>
 
-      {/* KPI stat cards (6-card layout matching the design) */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {/* KPI stat cards — 2 cols on mobile, 3 on tablet, 6 on desktop */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
           label="Total Orders"
           value={stats.total}
@@ -79,7 +72,7 @@ export default async function DashboardPage() {
           icon={<Box className="h-5 w-5" />}
         />
         <StatCard
-          label="Pending Orders"
+          label="Pending"
           value={stats.pending}
           sub="Awaiting action"
           badge="ACTION"
@@ -89,7 +82,7 @@ export default async function DashboardPage() {
         <StatCard
           label="Printing"
           value={stats.printing}
-          sub="In progress now"
+          sub="In progress"
           badge="LIVE"
           accent="green"
           icon={<Zap className="h-5 w-5" />}
@@ -105,13 +98,13 @@ export default async function DashboardPage() {
         <StatCard
           label="Delivered"
           value={stats.delivered}
-          sub="Successfully completed"
+          sub="Successfully done"
           badge="ALL TIME"
           accent="magenta"
           icon={<Truck className="h-5 w-5" />}
         />
         <StatCard
-          label="Total Revenue"
+          label="Revenue"
           value={fmtCurrency(stats.totalRevenue)}
           sub={`Paid: ${fmtCurrency(stats.totalPaid)}`}
           badge="ALL TIME"
@@ -120,23 +113,31 @@ export default async function DashboardPage() {
         />
       </div>
 
+      {/* Mobile: FAB-style new order button */}
+      <Link
+        href="/orders/new"
+        className="sm:hidden flex items-center justify-center gap-2 w-full btn-primary py-4 text-base rounded-2xl"
+      >
+        + Create new order
+      </Link>
+
       {/* Report export panel */}
       <ReportExporter />
 
       {/* Recent orders */}
-      <section className="mt-8 rounded-[1.5rem] bg-white/70 p-6 shadow-sm border border-white/50 backdrop-blur-xl dark:border-white/5 dark:bg-[#0a0a0a]/70">
-        <div className="mb-6 flex items-start justify-between">
-          <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-50 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400">
-              <Shirt className="h-5 w-5" />
+      <section className="rounded-[1.5rem] bg-white/70 p-4 sm:p-6 shadow-sm border border-white/50 backdrop-blur-xl dark:border-white/5 dark:bg-[#0a0a0a]/70">
+        <div className="mb-5 flex items-start justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-50 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400 shrink-0">
+              <Shirt className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recent Orders</h2>
-              <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Latest t-shirt printing jobs</p>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">Recent Orders</h2>
+              <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400 sm:text-sm">Latest t-shirt printing jobs</p>
             </div>
           </div>
-          <Link href="/orders" className="flex items-center gap-1 text-sm font-semibold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300">
-            View all <span aria-hidden="true">&rarr;</span>
+          <Link href="/orders" className="flex items-center gap-1 text-sm font-semibold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 shrink-0">
+            All <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
 
@@ -154,7 +155,7 @@ export default async function DashboardPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="hidden sm:table-header-group">
                   <tr className="border-b border-slate-100 bg-slate-50/50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400">
                     <th className="py-3 pl-6 pr-4">Client</th>
                     <th className="py-3 px-4">Design</th>

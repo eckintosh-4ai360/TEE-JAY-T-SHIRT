@@ -121,10 +121,10 @@ export default function OrderForm({ order }: OrderFormProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8">
         {/* ── Left column ──────────────────────────────────────────────── */}
-        <section className="space-y-5">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400">
+        <section className="space-y-4">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-1 border-b border-slate-100 dark:border-white/5">
             Client information
           </h2>
 
@@ -215,8 +215,8 @@ export default function OrderForm({ order }: OrderFormProps) {
         </section>
 
         {/* ── Right column ─────────────────────────────────────────────── */}
-        <section className="space-y-5">
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400">
+        <section className="space-y-4">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-1 border-b border-slate-100 dark:border-white/5">
             Colours &amp; quantities
           </h2>
 
@@ -267,15 +267,15 @@ export default function OrderForm({ order }: OrderFormProps) {
           </button>
 
           {/* Total pieces summary */}
-          <div className="rounded-lg bg-gray-50 border border-gray-200 px-4 py-3">
+          <div className="rounded-xl bg-slate-50 border border-slate-100 dark:bg-white/[0.03] dark:border-white/5 px-4 py-3">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">Total pieces</span>
-              <span className="font-semibold tabular-nums">{totalQty.toLocaleString()}</span>
+              <span className="text-slate-500 dark:text-slate-400">Total pieces</span>
+              <span className="font-bold tabular-nums dark:text-white">{totalQty.toLocaleString()}</span>
             </div>
           </div>
 
           {/* Pricing section */}
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-gray-400 pt-2">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 pb-1 border-b border-slate-100 dark:border-white/5 pt-2">
             Pricing
           </h2>
 
@@ -310,7 +310,7 @@ export default function OrderForm({ order }: OrderFormProps) {
           </div>
 
           {/* Invoice summary */}
-          <div className="rounded-lg border border-gray-200 bg-white divide-y divide-gray-100 text-sm overflow-hidden">
+          <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 divide-y divide-slate-100 dark:divide-white/5 text-sm overflow-hidden">
             <div className="flex justify-between px-4 py-2.5">
               <span className="text-gray-500">
                 Subtotal ({totalQty.toLocaleString()} × {fmtCurrency(unitPrice)})
@@ -332,7 +332,7 @@ export default function OrderForm({ order }: OrderFormProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-3 border-t border-gray-100 pt-6">
+      <div className="flex items-center gap-3 border-t border-slate-100 dark:border-white/5 pt-6 sticky bottom-0 bg-white/80 dark:bg-[#050505]/80 backdrop-blur-xl -mx-4 px-4 pb-4 sm:static sm:bg-transparent sm:dark:bg-transparent sm:pb-0 sm:mx-0 sm:px-0">
         <button
           type="submit"
           disabled={loading || !clientName.trim() || totalQty === 0}
