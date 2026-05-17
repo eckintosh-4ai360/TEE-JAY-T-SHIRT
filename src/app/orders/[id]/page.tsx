@@ -5,6 +5,7 @@ import { serializeOrder, fmtCurrency, fmtDate, fmtDateTime, initials } from '@/l
 import Badge from '@/components/Badge'
 import StatusUpdater from '@/components/StatusUpdater'
 import DeleteButton from '@/components/DeleteButton'
+import ReceiptButton from '@/components/ReceiptButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +56,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
         {/* Action buttons — wrap on mobile */}
         <div className="flex flex-wrap items-center gap-2">
           <StatusUpdater orderId={order.id} current={order.status} />
+          <ReceiptButton order={order} />
           <Link href={`/orders/${order.id}/edit`} className="btn-secondary btn-sm">
             Edit
           </Link>
