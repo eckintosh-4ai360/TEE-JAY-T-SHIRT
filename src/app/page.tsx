@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma'
 import StatCard from '@/components/StatCard'
 import OrderRow from '@/components/OrderRow'
 import { serializeOrder, fmtCurrency } from '@/lib/utils'
+import { Shirt, Zap, Rocket, Clock, Users, GitCommit, CheckCircle2, Truck, CreditCard, AlertCircle, Box } from 'lucide-react'
+import ReportExporter from '@/components/ReportExporter'
 
 export const dynamic = 'force-dynamic' // always fetch fresh data
 
@@ -66,85 +68,111 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* KPI stat cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {/* KPI stat cards (6-card layout matching the design) */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard
-          label="Total orders"
+          label="Total Orders"
           value={stats.total}
-          sub={`${stats.totalPieces.toLocaleString()} pieces printed`}
-        />
-        <StatCard
-          label="Total revenue"
-          value={fmtCurrency(stats.totalRevenue)}
-          sub={`Collected: ${fmtCurrency(stats.totalPaid)}`}
-          accent="orange"
-        />
-        <StatCard
-          label="Outstanding balance"
-          value={fmtCurrency(stats.totalBalance)}
           sub="Across all clients"
-          accent={stats.totalBalance > 0 ? 'red' : 'green'}
+          badge="ALL TIME"
+          accent="cyan"
+          icon={<Box className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Pending Orders"
+          value={stats.pending}
+          sub="Awaiting action"
+          badge="ACTION"
+          accent="purple"
+          icon={<AlertCircle className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Printing"
+          value={stats.printing}
+          sub="In progress now"
+          badge="LIVE"
+          accent="green"
+          icon={<Zap className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Completed"
+          value={stats.completed}
+          sub="Ready for delivery"
+          badge="DONE"
+          accent="orange"
+          icon={<CheckCircle2 className="h-5 w-5" />}
         />
         <StatCard
           label="Delivered"
           value={stats.delivered}
-          sub={`${stats.completed} completed, ${stats.cancelled} cancelled`}
-          accent="blue"
+          sub="Successfully completed"
+          badge="ALL TIME"
+          accent="magenta"
+          icon={<Truck className="h-5 w-5" />}
+        />
+        <StatCard
+          label="Total Revenue"
+          value={fmtCurrency(stats.totalRevenue)}
+          sub={`Paid: ${fmtCurrency(stats.totalPaid)}`}
+          badge="ALL TIME"
+          accent="cyan"
+          icon={<CreditCard className="h-5 w-5" />}
         />
       </div>
 
-      {/* Status breakdown */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {statusCards.map(({ label, count, status, color }) => (
-          <Link
-            key={status}
-            href={`/orders?status=${status}`}
-            className={`rounded-xl border px-4 py-3 text-sm font-medium transition hover:shadow-sm ${color}`}
-          >
-            <span className="block text-2xl font-bold">{count}</span>
-            <span>{label}</span>
-          </Link>
-        ))}
-      </div>
+      {/* Report export panel */}
+      <ReportExporter />
 
       {/* Recent orders */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-gray-900">Recent orders</h2>
-          <Link href="/orders" className="text-sm text-brand-600 hover:underline">
-            View all →
+      <section className="mt-8 rounded-[1.5rem] bg-white/70 p-6 shadow-sm border border-white/50 backdrop-blur-xl dark:border-white/5 dark:bg-[#0a0a0a]/70">
+        <div className="mb-6 flex items-start justify-between">
+          <div className="flex items-start gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-50 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400">
+              <Shirt className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recent Orders</h2>
+              <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">Latest t-shirt printing jobs</p>
+            </div>
+          </div>
+          <Link href="/orders" className="flex items-center gap-1 text-sm font-semibold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300">
+            View all <span aria-hidden="true">&rarr;</span>
           </Link>
         </div>
 
-        <div className="card overflow-hidden">
+        <div className="overflow-hidden rounded-xl border border-slate-100 bg-white/50 dark:border-white/5 dark:bg-white/5">
           {stats.orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="text-4xl mb-3">🖨️</p>
-              <p className="text-gray-500 text-sm">No orders yet.</p>
-              <Link href="/orders/new" className="btn-primary mt-4 btn-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-white/5 dark:text-slate-500 mb-4">
+                <Box className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">No orders found.</p>
+              <Link href="/orders/new" className="btn-primary mt-4 btn-sm rounded-lg">
                 Create your first order
               </Link>
             </div>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50 text-xs uppercase tracking-wide text-gray-400">
-                  <th className="py-2.5 pl-6 pr-4 text-left font-medium">Client</th>
-                  <th className="py-2.5 px-4 text-left font-medium">Design</th>
-                  <th className="py-2.5 px-4 text-right font-medium">Pieces</th>
-                  <th className="py-2.5 px-4 text-right font-medium">Total</th>
-                  <th className="py-2.5 px-4 text-right font-medium">Balance</th>
-                  <th className="py-2.5 px-4 text-left font-medium">Due</th>
-                  <th className="py-2.5 px-4 text-left font-medium">Status</th>
-                  <th className="py-2.5 pl-4 pr-6" />
-                </tr>
-              </thead>
-              <tbody>
-                {stats.orders.map((order) => (
-                  <OrderRow key={order.id} order={order} />
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/50 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:border-white/5 dark:bg-white/5 dark:text-slate-400">
+                    <th className="py-3 pl-6 pr-4">Client</th>
+                    <th className="py-3 px-4">Design</th>
+                    <th className="py-3 px-4 text-right">Pieces</th>
+                    <th className="py-3 px-4 text-right">Total</th>
+                    <th className="py-3 px-4 text-right">Balance</th>
+                    <th className="py-3 px-4">Due</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 pl-4 pr-6" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                  {stats.orders.map((order) => (
+                    <OrderRow key={order.id} order={order} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </section>

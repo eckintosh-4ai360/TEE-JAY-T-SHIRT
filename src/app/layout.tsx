@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from '@/components/Navbar'
+import { ThemeProvider } from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
   title: 'Press Manager — T-shirt Printing',
@@ -13,12 +14,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
-        <Navbar />
-        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          {children}
-        </main>
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Navbar />
+          <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 relative z-10">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   )
