@@ -1,12 +1,14 @@
 import { withAuth } from 'next-auth/middleware'
 
-// Protect everything except the login page and the NextAuth API routes
+// Only protect UI pages — API routes handle their own auth via getServerSession.
+// Redirecting API calls to /login converts POST → GET → 405 Method Not Allowed.
 export default withAuth({
   pages: { signIn: '/login' },
 })
 
 export const config = {
   matcher: [
-    '/((?!login|api/auth|_next/static|_next/image|favicon.ico).*)',
+    // Match all paths EXCEPT: login, any /api/* route, Next.js internals, static files
+    '/((?!login|api/|_next/static|_next/image|favicon.ico).*)',
   ],
 }
