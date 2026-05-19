@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { serializeOrder } from '@/lib/utils'
+import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel } from '@/lib/utils'
+import { sendSMS, buildStatusUpdateSMS } from '@/lib/sms'
+import { STATUS_META, type OrderStatus } from '@/types'
 
 // ── GET /api/orders/[id] ──────────────────────────────────────────────────────
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -94,16 +96,49 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       data: { status: body.status, notes: body.notes },
       include: { colors: true, assignedTo: true },
     })
-    return NextResponse.json(serializeOrder(updated))
+    const serialized = serializeOrder(updated)
+    // ── Notify client via SMS on status change ────────────────────────────
+    if (updated.clientPhone && body.status && body.status !== order.status) {
+      const statusLabel = STATUS_META[body.status as OrderStatus]?.label ?? body.status
+      const msg = buildStatusUpdateSMS({
+        clientName:    serialized.clientName,
+        receiptNumber: serialized.receiptNumber,
+        serviceLabel:  getServiceLabel(serialized),
+        totalAmount:   fmtCurrency(serialized.totalAmount),
+        amountPaid:    fmtCurrency(serialized.amountPaid),
+        balance:       fmtCurrency(serialized.balance),
+        dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
+        status:        statusLabel,
+      })
+      sendSMS([updated.clientPhone], msg).catch(console.error)
+    }
+    return NextResponse.json(serialized)
   }
 
   // Admin can patch anything
+  const prevOrder = await prisma.order.findUnique({ where: { id } })
   const updated = await prisma.order.update({
     where: { id },
     data: body,
     include: { colors: true, assignedTo: true },
   })
-  return NextResponse.json(serializeOrder(updated))
+  const serialized = serializeOrder(updated)
+  // ── Notify client via SMS on status change (admin path) ───────────────
+  if (updated.clientPhone && body.status && body.status !== prevOrder?.status) {
+    const statusLabel = STATUS_META[body.status as OrderStatus]?.label ?? body.status
+    const msg = buildStatusUpdateSMS({
+      clientName:    serialized.clientName,
+      receiptNumber: serialized.receiptNumber,
+      serviceLabel:  getServiceLabel(serialized),
+      totalAmount:   fmtCurrency(serialized.totalAmount),
+      amountPaid:    fmtCurrency(serialized.amountPaid),
+      balance:       fmtCurrency(serialized.balance),
+      dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
+      status:        statusLabel,
+    })
+    sendSMS([updated.clientPhone], msg).catch(console.error)
+  }
+  return NextResponse.json(serialized)
 }
 
 // ── DELETE /api/orders/[id] ───────────────────────────────────────────────────

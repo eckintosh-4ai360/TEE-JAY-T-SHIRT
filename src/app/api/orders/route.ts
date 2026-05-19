@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { serializeOrder, generateReceiptNumber } from '@/lib/utils'
+import { serializeOrder, generateReceiptNumber, fmtCurrency, fmtDate, getServiceLabel } from '@/lib/utils'
+import { sendSMS, buildOrderConfirmationSMS } from '@/lib/sms'
 import type { Prisma } from '@prisma/client'
 
 // ── GET /api/orders ────────────────────────────────────────────────────────────
@@ -79,7 +80,24 @@ export async function POST(req: Request) {
       },
       include: { colors: true, assignedTo: true },
     })
-    return NextResponse.json(serializeOrder(order), { status: 201 })
+
+    const serialized = serializeOrder(order)
+
+    // ── Fire-and-forget SMS confirmation to client ──────────────────────────
+    if (order.clientPhone) {
+      const msg = buildOrderConfirmationSMS({
+        clientName:    serialized.clientName,
+        receiptNumber: serialized.receiptNumber,
+        serviceLabel:  getServiceLabel(serialized),
+        totalAmount:   fmtCurrency(serialized.totalAmount),
+        amountPaid:    fmtCurrency(serialized.amountPaid),
+        balance:       fmtCurrency(serialized.balance),
+        dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
+      })
+      sendSMS([order.clientPhone], msg).catch(console.error)
+    }
+
+    return NextResponse.json(serialized, { status: 201 })
   } catch (err) {
     console.error('POST /api/orders', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
