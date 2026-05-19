@@ -34,40 +34,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f0f9fa] px-4 dark:bg-[#050505]">
-      {/* Subtle background grid */}
-      <div className="pointer-events-none fixed inset-0"
-           style={{ backgroundImage: 'radial-gradient(circle at center, rgba(0,0,0,0.02) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+    <div className="relative flex min-h-screen items-center justify-center bg-black px-4 overflow-hidden selection:bg-yellow-500 selection:text-black">
+      {/* Background Gradients */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-red-600/30 blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-yellow-500/20 blur-[120px]" />
+      </div>
 
-      <div className="relative w-full max-w-sm">
+      <div className="relative w-full max-w-md z-10">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-xl shadow-brand-500/30">
-            <Shirt className="h-8 w-8" />
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-yellow-500 text-black shadow-[0_0_40px_rgba(220,38,38,0.4)]">
+            <Shirt className="h-10 w-10" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Press Manager</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Sign in to your account</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Press Manager</h1>
+          <p className="mt-2 text-sm text-zinc-400">Sign in to your account</p>
         </div>
 
         {/* Card */}
-        <div className="rounded-[1.5rem] border border-white/50 bg-white/80 p-8 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-[#0a0a0a]/80">
-          <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="rounded-[2rem] border border-zinc-800 bg-zinc-950/60 p-8 shadow-2xl backdrop-blur-xl">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error */}
             {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400">
                 {error}
               </div>
             )}
 
             {/* Email */}
-            <div>
-              <label className="label" htmlFor="login-email">Email address</label>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-zinc-300" htmlFor="login-email">Email address</label>
               <input
                 id="login-email"
                 type="email"
                 autoComplete="email"
                 required
-                className="input"
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 text-white placeholder-zinc-500 outline-none transition-all focus:border-yellow-500 focus:bg-zinc-900 focus:ring-1 focus:ring-yellow-500"
                 placeholder="you@teejay.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -75,15 +77,15 @@ export default function LoginPage() {
             </div>
 
             {/* Password */}
-            <div>
-              <label className="label" htmlFor="login-password">Password</label>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-zinc-300" htmlFor="login-password">Password</label>
               <div className="relative">
                 <input
                   id="login-password"
                   type={showPw ? 'text' : 'password'}
                   autoComplete="current-password"
                   required
-                  className="input pr-12"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 pr-12 text-white placeholder-zinc-500 outline-none transition-all focus:border-yellow-500 focus:bg-zinc-900 focus:ring-1 focus:ring-yellow-500"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -91,10 +93,10 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 touch-manipulation"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-yellow-500 transition-colors touch-manipulation"
                   aria-label={showPw ? 'Hide password' : 'Show password'}
                 >
-                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPw ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
             </div>
@@ -104,18 +106,19 @@ export default function LoginPage() {
               type="submit"
               id="login-submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="group relative flex w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-red-600 to-yellow-500 px-4 py-3.5 text-sm font-bold text-black transition-all hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-70"
             >
+              <div className="absolute inset-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
               {loading ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Signing in…</>
+                <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Signing in…</>
               ) : (
-                'Sign in'
+                'Sign in to Dashboard'
               )}
             </button>
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-400 dark:text-slate-500">
+        <p className="mt-8 text-center text-sm font-medium text-zinc-500">
           Tee-Jay Multimedia — Staff Portal
         </p>
       </div>
