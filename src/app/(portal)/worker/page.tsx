@@ -6,6 +6,7 @@ import { serializeOrder, fmtDate, getServiceLabel, getStatusLabel } from '@/lib/
 import { STATUS_META } from '@/types'
 import Link from 'next/link'
 import { Box, Clock, CheckCircle2, Zap } from 'lucide-react'
+import OrderStatusSelect from '@/components/OrderStatusSelect'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Worker Dashboard — Tee-Jay' }
@@ -93,7 +94,7 @@ export default async function WorkerDashboard() {
                       <td className="py-3 px-3 text-xs text-slate-500">{getServiceLabel(o)}</td>
                       <td className="py-3 px-3 text-slate-500 text-xs hidden sm:table-cell max-w-[160px] truncate">{o.description ?? '—'}</td>
                       <td className="py-3 px-3">
-                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${meta?.className}`}>{getStatusLabel(o)}</span>
+                        <OrderStatusSelect orderId={o.id} currentStatus={o.status as any} />
                       </td>
                       <td className="py-3 px-3 text-xs text-slate-400 hidden sm:table-cell">{fmtDate(o.dueDate)}</td>
                       <td className="py-3 pl-3 pr-5">

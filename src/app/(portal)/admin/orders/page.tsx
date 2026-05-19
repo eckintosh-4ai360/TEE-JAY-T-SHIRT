@@ -3,6 +3,7 @@ import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel, getStatusLabel }
 import { STATUS_META } from '@/types'
 import Link from 'next/link'
 import { Plus, Search } from 'lucide-react'
+import OrderStatusSelect from '@/components/OrderStatusSelect'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'All Orders — Tee-Jay Multimedia' }
@@ -63,7 +64,7 @@ export default async function AdminOrdersPage() {
                       <td className="py-3 px-3 text-xs text-slate-500 dark:text-slate-400 max-w-[120px] truncate">{getServiceLabel(o)}</td>
                       <td className="py-3 px-3 font-mono text-xs text-slate-400 hidden sm:table-cell">{o.receiptNumber}</td>
                       <td className="py-3 px-3">
-                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${meta?.className}`}>{getStatusLabel(o)}</span>
+                        <OrderStatusSelect orderId={o.id} currentStatus={o.status as any} />
                       </td>
                       <td className="py-3 px-3 text-xs text-slate-500 hidden md:table-cell">{o.assignedToName ?? <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
                       <td className="py-3 px-3 text-right tabular-nums font-medium text-slate-700 dark:text-slate-300 hidden md:table-cell">{fmtCurrency(o.totalAmount)}</td>
