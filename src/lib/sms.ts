@@ -4,7 +4,7 @@
  */
 
 const MNOTIFY_API_KEY = process.env.MNOTIFY_API_KEY ?? ''
-const MNOTIFY_BASE    = 'https://apps.mnotify.net/smsapi'
+const MNOTIFY_BASE    = 'https://api.mnotify.com/api/sms/quick'
 
 interface SMSResult {
   ok: boolean
@@ -27,26 +27,28 @@ export async function sendSMS(
     return { ok: false }
   }
 
-  // Normalize: strip leading zeros / country codes, mNotify expects local GH numbers
+  // Normalize: strip whitespace from numbers
   const nums = recipients
     .map(r => r.replace(/\s+/g, ''))
     .filter(Boolean)
-    .join(',')
 
-  if (!nums) return { ok: false }
-
-  const params = new URLSearchParams({
-    key:       MNOTIFY_API_KEY,
-    to:        nums,
-    msg:       message,
-    sender_id: senderId,
-    // mNotify quick API uses GET params
-  })
+  if (nums.length === 0) return { ok: false }
 
   try {
-    const res = await fetch(`${MNOTIFY_BASE}?${params.toString()}`, {
-      method: 'GET',
-      // Give it 8 s max – don't block the API response too long
+    const res = await fetch(`${MNOTIFY_BASE}?key=${MNOTIFY_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        recipient: nums,
+        sender: senderId,
+        message: message,
+        is_schedule: 'false',
+        schedule_date: ''
+      }),
+      // Give it 8s max – don't block the API response too long
       signal: AbortSignal.timeout(8000),
     })
     const raw = await res.json().catch(() => res.text())
