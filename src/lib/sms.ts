@@ -15,7 +15,7 @@ interface SMSResult {
  * Send a quick SMS via mNotify to one or more phone numbers.
  * @param recipients  Array of phone numbers (e.g. ["0241234567"])
  * @param message     The message body
- * @param senderId    Sender name/ID (max 11 chars). Defaults to "TeeJay"
+ * @param senderId    Sender name/ID (max 11 chars).
  */
 export async function sendSMS(
   recipients: string[],
