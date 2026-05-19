@@ -2,12 +2,10 @@
 
 import { useState } from 'react'
 import { Download, FileText, FileSpreadsheet, Loader2, ChevronDown } from 'lucide-react'
-import type { SerializedOrder } from '@/lib/utils'
+import type { SerializedOrder } from '@/types'
+import { getServiceLabel, getStatusLabel, fmtCurrency } from '@/lib/utils'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
-function fmtCurrencyRaw(n: number) {
-  return `GHS ${n.toFixed(2)}`
-}
 function fmtDate(iso: string | null | undefined) {
   if (!iso) return '—'
   return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -20,13 +18,13 @@ function buildRows(orders: SerializedOrder[]) {
   return orders.map((o) => [
     o.clientName,
     o.clientPhone ?? '—',
-    o.design ?? '—',
+    getServiceLabel(o),
     o.totalQty,
-    fmtCurrencyRaw(o.unitPrice),
-    fmtCurrencyRaw(o.totalAmount),
-    fmtCurrencyRaw(o.amountPaid),
-    fmtCurrencyRaw(o.balance),
-    o.status,
+    fmtCurrency(o.unitPrice),
+    fmtCurrency(o.totalAmount),
+    fmtCurrency(o.amountPaid),
+    fmtCurrency(o.balance),
+    getStatusLabel(o),
     fmtDate(o.dueDate),
     fmtDate(o.createdAt),
   ])
@@ -141,9 +139,9 @@ export default function ReportExporter() {
         ['SUMMARY'],
         ['Total Orders', orders.length],
         ['Total Pieces', totalQty],
-        ['Total Revenue', fmtCurrencyRaw(totalRevenue)],
-        ['Total Paid',    fmtCurrencyRaw(totalPaid)],
-        ['Outstanding',   fmtCurrencyRaw(totalBalance)],
+        ['Total Revenue', fmtCurrency(totalRevenue)],
+        ['Total Paid',    fmtCurrency(totalPaid)],
+        ['Outstanding',   fmtCurrency(totalBalance)],
       ]
 
       // Orders sheet

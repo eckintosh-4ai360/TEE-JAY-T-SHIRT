@@ -1,105 +1,117 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { serializeOrder, computeTotals } from '@/lib/utils'
-import type { OrderPayload } from '@/types'
-
-type Params = { params: Promise<{ id: string }> }
+import { serializeOrder } from '@/lib/utils'
 
 // ── GET /api/orders/[id] ──────────────────────────────────────────────────────
-export async function GET(_req: NextRequest, { params }: Params) {
-  try {
-    const { id } = await params
-    const order = await prisma.order.findUnique({
-      where: { id },
-      include: { colors: true },
-    })
-    if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    return NextResponse.json(serializeOrder(order))
-  } catch (err) {
-    console.error('[GET /api/orders/[id]]', err)
-    return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 })
-  }
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: { colors: true, assignedTo: true },
+  })
+  if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (session.user?.role === 'WORKER' && order.assignedToId !== session.user.id)
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  return NextResponse.json(serializeOrder(order))
 }
 
-// ── PUT /api/orders/[id] ── full update ───────────────────────────────────────
-export async function PUT(req: NextRequest, { params }: Params) {
+// ── PUT /api/orders/[id] (full update — admin) ────────────────────────────────
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (session.user?.role !== 'ADMIN') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   try {
-    const { id } = await params
-    const body: OrderPayload = await req.json()
+    const body = await req.json()
+    const {
+      serviceCategory, printingType, printingTypeOther,
+      photographyType, photographyTypeOther,
+      clientName, clientPhone, clientEmail,
+      assignedToId, description, dueDate, status, notes,
+      unitPrice, amountPaid = 0, colors = [],
+    } = body
 
-    if (!body.clientName?.trim()) {
-      return NextResponse.json({ error: 'Client name is required' }, { status: 400 })
-    }
+    const isPrinting = serviceCategory === 'PRINTING'
+    const totalQty    = isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1
+    const totalAmount = parseFloat((totalQty * Number(unitPrice)).toFixed(2))
+    const balance     = parseFloat((totalAmount - Number(amountPaid)).toFixed(2))
 
-    const colors = (body.colors ?? []).map((c) => ({
-      name: c.name ?? '',
-      qty:  Number(c.qty ?? 0),
-    }))
-
-    const { totalQty, totalAmount, balance } = computeTotals(
-      colors,
-      body.unitPrice,
-      body.amountPaid
-    )
-
-    // Delete existing colours and recreate — simplest strategy for a list update
+    // Replace colors
     await prisma.orderColor.deleteMany({ where: { orderId: id } })
 
     const order = await prisma.order.update({
       where: { id },
       data: {
-        clientName:  body.clientName.trim(),
-        clientPhone: body.clientPhone  || null,
-        clientEmail: body.clientEmail  || null,
-        design:      body.design       || null,
-        dueDate:     body.dueDate ? new Date(body.dueDate) : null,
-        status:      body.status  ?? 'PENDING',
-        notes:       body.notes        || null,
-        unitPrice:   Number(body.unitPrice  ?? 0),
-        amountPaid:  Number(body.amountPaid ?? 0),
-        totalQty,
-        totalAmount,
-        balance,
-        colors: { create: colors },
+        serviceCategory, printingType: printingType ?? null,
+        printingTypeOther: printingTypeOther ?? null,
+        photographyType: photographyType ?? null,
+        photographyTypeOther: photographyTypeOther ?? null,
+        clientName: clientName?.trim(), clientPhone: clientPhone?.trim() || null,
+        clientEmail: clientEmail?.trim() || null,
+        assignedToId: assignedToId || null,
+        description: description?.trim() || null,
+        dueDate: dueDate ? new Date(dueDate) : null,
+        status, notes: notes?.trim() || null,
+        unitPrice: Number(unitPrice), totalQty, totalAmount,
+        amountPaid: Number(amountPaid), balance,
+        colors: isPrinting && colors.length > 0 ? {
+          create: colors
+            .filter((c: { name: string; qty: number }) => c.name?.trim())
+            .map((c: { name: string; qty: number }) => ({ name: c.name.trim(), qty: Number(c.qty) })),
+        } : undefined,
       },
-      include: { colors: true },
+      include: { colors: true, assignedTo: true },
     })
-
     return NextResponse.json(serializeOrder(order))
   } catch (err) {
-    console.error('[PUT /api/orders/[id]]', err)
-    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
+    console.error('PUT /api/orders/[id]', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-// ── PATCH /api/orders/[id] ── partial update (status) ────────────────────────
-export async function PATCH(req: NextRequest, { params }: Params) {
-  try {
-    const { id } = await params
-    const body = await req.json()
+// ── PATCH /api/orders/[id] (partial — worker can update status/notes only) ────
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const order = await prisma.order.update({
+  const body = await req.json()
+
+  // Workers can only update status + notes on their assigned orders
+  if (session.user?.role === 'WORKER') {
+    const order = await prisma.order.findUnique({ where: { id } })
+    if (!order || order.assignedToId !== session.user.id)
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const updated = await prisma.order.update({
       where: { id },
-      data: { status: body.status },
-      include: { colors: true },
+      data: { status: body.status, notes: body.notes },
+      include: { colors: true, assignedTo: true },
     })
-
-    return NextResponse.json(serializeOrder(order))
-  } catch (err) {
-    console.error('[PATCH /api/orders/[id]]', err)
-    return NextResponse.json({ error: 'Failed to update status' }, { status: 500 })
+    return NextResponse.json(serializeOrder(updated))
   }
+
+  // Admin can patch anything
+  const updated = await prisma.order.update({
+    where: { id },
+    data: body,
+    include: { colors: true, assignedTo: true },
+  })
+  return NextResponse.json(serializeOrder(updated))
 }
 
 // ── DELETE /api/orders/[id] ───────────────────────────────────────────────────
-export async function DELETE(_req: NextRequest, { params }: Params) {
-  try {
-    const { id } = await params
-    // OrderColor rows are cascade-deleted via Prisma schema onDelete: Cascade
-    await prisma.order.delete({ where: { id } })
-    return NextResponse.json({ success: true })
-  } catch (err) {
-    console.error('[DELETE /api/orders/[id]]', err)
-    return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 })
-  }
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const session = await getServerSession(authOptions)
+  if (!session || session.user?.role !== 'ADMIN')
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  await prisma.order.delete({ where: { id } })
+  return NextResponse.json({ ok: true })
 }

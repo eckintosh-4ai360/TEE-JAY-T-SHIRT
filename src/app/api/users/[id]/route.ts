@@ -1,24 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 
-// DELETE /api/users/[id] — remove a user (admin only, cannot delete self)
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!session || session.user?.role !== 'ADMIN')
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
   const { id } = await params
+  const body = await req.json()
+  const user = await prisma.user.update({
+    where: { id },
+    data: { isActive: body.isActive, phone: body.phone, name: body.name },
+    select: { id: true, name: true, email: true, isActive: true },
+  })
+  return NextResponse.json(user)
+}
 
-  if (id === session.user.id) {
-    return NextResponse.json({ error: 'You cannot delete your own account.' }, { status: 400 })
-  }
-
+export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user?.role !== 'ADMIN')
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const { id } = await params
   await prisma.user.delete({ where: { id } })
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ ok: true })
 }

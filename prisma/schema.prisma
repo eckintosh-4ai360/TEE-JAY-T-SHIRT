@@ -1,21 +1,18 @@
-// This is your Prisma schema file
-// Learn more: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider  = "postgresql"
-  // Pooled connection URL — used at runtime (PgBouncer via Neon)
   url       = env("DATABASE_URL")
-  // Direct (unpooled) connection URL — used for migrations only
   directUrl = env("DIRECT_URL")
 }
 
+// ── Enums ────────────────────────────────────────────────────────────────────
+
 enum OrderStatus {
   PENDING
-  PRINTING
+  PRINTING // displays as "In Progress" for photography
   COMPLETED
   DELIVERED
   CANCELLED
@@ -26,53 +23,95 @@ enum UserRole {
   WORKER
 }
 
+enum ServiceCategory {
+  PRINTING
+  PHOTOGRAPHY
+}
+
+enum PrintingType {
+  TSHIRT
+  LOGO
+  POSTER
+  FLYER
+  OTHER
+}
+
+enum PhotographyType {
+  WEDDING
+  BIRTHDAY
+  GRADUATION
+  OTHER
+}
+
+// ── Models ──────────────────────────────
+
 model User {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
   passwordHash String
+  phone        String?
   role         UserRole @default(WORKER)
+  isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  assignedOrders Order[]
+
   @@index([email])
+  @@index([role])
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id            String   @id @default(cuid())
+  receiptNumber String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  // Client information
+  // ── Service type ──────────────────────────────────────────────────────────
+  serviceCategory      ServiceCategory  @default(PRINTING)
+  printingType         PrintingType?
+  printingTypeOther    String?
+  photographyType      PhotographyType?
+  photographyTypeOther String?
+
+  // ── Client information ────────────────────────────────────────────────────
   clientName  String
   clientPhone String?
   clientEmail String?
 
-  // Order details
-  design      String?
+  // ── Worker assignment ─────────────────────────────────────────────────────
+  assignedToId String?
+  assignedTo   User?   @relation(fields: [assignedToId], references: [id])
+
+  // ── Order details ─────────────────────────────────────────────────────────
+  description String? // design brief / photography details
   dueDate     DateTime?
   status      OrderStatus @default(PENDING)
   notes       String?
 
-  // Pricing — using Decimal for accurate money arithmetic
-  unitPrice   Decimal     @db.Decimal(12, 2)
-  totalQty    Int         @default(0)
-  totalAmount Decimal     @db.Decimal(12, 2) @default(0)
-  amountPaid  Decimal     @db.Decimal(12, 2) @default(0)
-  balance     Decimal     @db.Decimal(12, 2) @default(0)
+  // ── Pricing ───────────────────────────────────────────────────────────────
+  unitPrice   Decimal @db.Decimal(12, 2)
+  totalQty    Int     @default(1)
+  totalAmount Decimal @default(0) @db.Decimal(12, 2)
+  amountPaid  Decimal @default(0) @db.Decimal(12, 2)
+  balance     Decimal @default(0) @db.Decimal(12, 2)
 
-  // Relation to individual colour + quantity breakdown
-  colors      OrderColor[]
+  // ── Colour breakdown (printing only) ──────────────────────────────────────
+  colors OrderColor[]
 
   @@index([status])
   @@index([createdAt])
   @@index([clientName])
+  @@index([receiptNumber])
+  @@index([serviceCategory])
+  @@index([assignedToId])
 }
 
 model OrderColor {
-  id      String @id @default(cuid())
-  name    String
-  qty     Int    @default(0)
+  id   String @id @default(cuid())
+  name String
+  qty  Int    @default(0)
 
   orderId String
   order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
