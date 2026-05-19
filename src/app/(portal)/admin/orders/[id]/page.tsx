@@ -1,10 +1,9 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel, getStatusLabel } from '@/lib/utils'
-import { STATUS_META } from '@/types'
+import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel } from '@/lib/utils'
 import Link from 'next/link'
 import AdminReceiptButton from '@/components/AdminReceiptButton'
-import OrderStatusSelect from '@/components/OrderStatusSelect'
+import AdminStatusPanel from '@/components/AdminStatusPanel'
 import { ChevronLeft, Edit, Printer, Camera } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -24,7 +23,6 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   if (!raw) notFound()
 
   const o    = serializeOrder(raw)
-  const meta = STATUS_META[o.status as keyof typeof STATUS_META]
   const isPrinting = o.serviceCategory === 'PRINTING'
 
   function R({ label, value }: { label: string; value: React.ReactNode }) {
@@ -50,8 +48,6 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 {isPrinting ? <Printer className="h-4 w-4" /> : <Camera className="h-4 w-4" />}
               </div>
               <h1 className="text-xl font-black text-slate-900 dark:text-white">{o.clientName}</h1>
-              {/* ── Interactive status dropdown (replaces static badge) ── */}
-              <OrderStatusSelect orderId={o.id} currentStatus={o.status as any} />
             </div>
             <p className="text-sm text-slate-500">{getServiceLabel(o)} · <span className="font-mono">{o.receiptNumber}</span></p>
           </div>
@@ -145,27 +141,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </div>
 
           {/* Status update card */}
-          <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-5">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Order Status</h2>
-            <p className="text-xs text-slate-500 mb-3">Click a status to update instantly. The client will be notified via SMS.</p>
-            <div className="grid grid-cols-1 gap-2">
-              {(Object.entries(STATUS_META) as [string, { label: string; className: string }][]).map(([key, sm]) => (
-                <div key={key} className={`rounded-xl px-4 py-2.5 text-sm font-semibold flex items-center justify-between ${
-                  o.status === key
-                    ? sm.className + ' ring-2 ring-offset-1 ring-teal-400'
-                    : 'bg-slate-50 dark:bg-white/5 text-slate-500 dark:text-slate-400'
-                }`}>
-                  <span>{sm.label}</span>
-                  {o.status === key && <span className="text-xs font-bold opacity-70">Current</span>}
-                </div>
-              ))}
-            </div>
-            {/* Large interactive select for quick change */}
-            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
-              <label className="text-xs font-bold uppercase tracking-widest text-slate-400 block mb-2">Change Status</label>
-              <OrderStatusSelect orderId={o.id} currentStatus={o.status as any} />
-            </div>
-          </div>
+          <AdminStatusPanel orderId={o.id} currentStatus={o.status as any} />
 
           <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0a0a] p-5">
             <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Receipt</h2>
