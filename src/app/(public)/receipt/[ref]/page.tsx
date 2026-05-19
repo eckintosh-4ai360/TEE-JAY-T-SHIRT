@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ ref: string }> }) {
   const { ref } = await params
-  return { title: `Receipt ${ref} — Tee-Jay` }
+  return { title: `Receipt ${ref} — Tee-Jay Multimedia` }
 }
 
 export default async function ReceiptPage({ params }: { params: Promise<{ ref: string }> }) {
@@ -37,7 +37,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
           <div>
             <div className="flex items-center gap-2 mb-1">
               {isPrinting ? <Printer className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
-              <span className="text-sm font-bold opacity-90">TEE-JAY</span>
+              <span className="text-sm font-bold opacity-90">TEE-JAY MULTIMEDIA</span>
             </div>
             <p className="text-xs opacity-75">Printing & Photography Services</p>
           </div>
@@ -129,7 +129,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
 
           {/* Thank you */}
           <div className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-500/10 dark:to-cyan-500/10 border border-teal-100 dark:border-teal-500/20 p-5 text-center">
-            <p className="font-bold text-teal-700 dark:text-teal-300">Thank you for choosing Tee-Jay!</p>
+            <p className="font-bold text-teal-700 dark:text-teal-300">Thank you for choosing Tee-Jay Multimedia!</p>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Keep this receipt number for your records: <span className="font-mono font-bold text-teal-600 dark:text-teal-400">{order.receiptNumber}</span></p>
           </div>
 

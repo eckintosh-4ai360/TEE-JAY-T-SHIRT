@@ -76,7 +76,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 </style></head><body>
 <div class="page">
 <div class="header">
-  <div><div class="brand-name">TEE-JAY</div><div class="brand-tag">PRINTING &amp; PHOTOGRAPHY SERVICES</div></div>
+  <div><div class="brand-name">TEE-JAY MULTIMEDIA</div><div class="brand-tag">PRINTING &amp; PHOTOGRAPHY SERVICES</div></div>
   <div class="rec-label"><div class="rec-word">RECEIPT</div><div class="rec-ref">#${order.receiptNumber}</div><div class="rec-ref">Date: ${fmtD(order.createdAt)}</div></div>
 </div>
 <div class="body">
@@ -107,7 +107,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <div class="pay-row"><span class="pay-k">Amount Paid</span><span class="pay-v paid">${fmtM(order.amountPaid)}</span></div>
     <div class="pay-row total"><span class="pay-k">Balance Due</span><span class="pay-v ${order.balance > 0 ? 'owed' : 'settled'}">${fmtM(order.balance)}</span></div>
   </div></div>
-  <div class="ty"><div class="ty-main">Thank you for choosing Tee-Jay!</div><div class="ty-sub">Please keep this receipt for your records.</div></div>
+  <div class="ty"><div class="ty-main">Thank you for choosing Tee-Jay Multimedia!</div><div class="ty-sub">Please keep this receipt for your records.</div></div>
   <div class="footer">Generated ${new Date().toLocaleString('en-GH')} &nbsp;|&nbsp; Receipt: ${order.receiptNumber} &nbsp;|&nbsp; Ref: ${order.id.slice(-8).toUpperCase()}</div>
 </div></div>
 <script>window.onload=function(){window.print()}<\/script>

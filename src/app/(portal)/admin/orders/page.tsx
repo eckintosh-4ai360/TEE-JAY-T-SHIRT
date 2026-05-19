@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Plus, Search } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'All Orders — Tee-Jay Admin' }
+export const metadata = { title: 'All Orders — Tee-Jay Multimedia' }
 
 export default async function AdminOrdersPage() {
   const raw = await prisma.order.findMany({

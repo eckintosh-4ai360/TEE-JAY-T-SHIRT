@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const o = await prisma.order.findUnique({ where: { id } })
-  return { title: o ? `Order – ${o.clientName} — Tee-Jay` : 'Order not found' }
+  return { title: o ? `Order – ${o.clientName} — Tee-Jay Multimedia` : 'Order not found' }
 }
 
 export default async function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {

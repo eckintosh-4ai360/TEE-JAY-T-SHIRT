@@ -116,7 +116,7 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-slate-400 dark:text-slate-500">
-          Tee-Jay T-shirt Printing — Staff Portal
+          Tee-Jay Multimedia — Staff Portal
         </p>
       </div>
     </div>

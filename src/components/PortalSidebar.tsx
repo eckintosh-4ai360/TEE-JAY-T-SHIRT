@@ -78,7 +78,7 @@ export default function PortalSidebar() {
             <Printer className="h-4 w-4" />
           </span>
           <div>
-            <p className="text-sm font-black tracking-tight text-slate-900 dark:text-white">TEE-JAY</p>
+            <p className="text-sm font-black tracking-tight text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</p>
             <p className="text-[10px] text-slate-400 flex items-center gap-1"><Printer className="h-2.5 w-2.5" /> Printing · <Camera className="h-2.5 w-2.5" /> Photography</p>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function PortalSidebar() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 text-white">
             <Printer className="h-3.5 w-3.5" />
           </span>
-          <span className="text-sm font-black text-slate-900 dark:text-white">TEE-JAY</span>
+          <span className="text-sm font-black text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</span>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -110,7 +110,7 @@ export default function PortalSidebar() {
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
           <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-[#0a0a0a] shadow-2xl flex flex-col">
             <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200 dark:border-white/10">
-              <span className="font-black text-slate-900 dark:text-white">TEE-JAY</span>
+              <span className="font-black text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</span>
               <button onClick={() => setOpen(false)}><X className="h-5 w-5 text-slate-400" /></button>
             </div>
             <div className="flex-1 overflow-y-auto py-4 flex flex-col">

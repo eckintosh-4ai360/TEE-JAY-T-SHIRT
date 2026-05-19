@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Admin Dashboard — Tee-Jay' }
+export const metadata = { title: 'Admin Dashboard — Tee-Jay Multimedia' }
 
 async function getStats() {
   const [orders, agg, byStatus, byCategory, workers] = await Promise.all([
@@ -52,7 +52,7 @@ export default async function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-black text-slate-900 dark:text-white sm:text-2xl">Admin Dashboard</h1>
-          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Full overview of Tee-Jay operations</p>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Full overview of Tee-Jay Multimedia operations</p>
         </div>
         <Link href="/admin/orders/new" className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-teal-500 px-4 py-2 text-sm font-bold text-white hover:bg-teal-600 transition-colors">
           <Plus className="h-4 w-4" /> New Order

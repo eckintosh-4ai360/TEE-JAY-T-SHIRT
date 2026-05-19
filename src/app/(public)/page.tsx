@@ -23,7 +23,7 @@ export default function LandingPage() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-cyan-500">Printing & Photography</span>
         </h1>
         <p className="mt-6 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-          From custom T-shirts to stunning event photography — Tee-Jay delivers premium quality on time, every time. Book your service today and track your order in real-time.
+          From custom T-shirts to stunning event photography — Tee-Jay Multimedia delivers premium quality on time, every time. Book your service today and track your order in real-time.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/book"
@@ -95,7 +95,7 @@ export default function LandingPage() {
 
       {/* ── Why us ──────────────────────────────────────────────────────────── */}
       <section className="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 sm:p-12 text-white">
-        <h2 className="text-2xl font-black mb-8 text-center sm:text-3xl">Why Choose Tee-Jay?</h2>
+        <h2 className="text-2xl font-black mb-8 text-center sm:text-3xl">Why Choose Tee-Jay Multimedia?</h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           {[
             { icon: Zap,          title: 'Fast Turnaround',   desc: 'Quick production and delivery times to meet your deadlines'      },

@@ -29,7 +29,7 @@ export default function PublicNavbar() {
             <Printer className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-sm font-black tracking-tight leading-none text-slate-900 dark:text-white">TEE-JAY</p>
+            <p className="text-sm font-black tracking-tight leading-none text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</p>
             <p className="text-[10px] font-medium leading-none text-teal-600 dark:text-teal-400 mt-1 hidden sm:block">Printing & Photography</p>
           </div>
         </Link>
