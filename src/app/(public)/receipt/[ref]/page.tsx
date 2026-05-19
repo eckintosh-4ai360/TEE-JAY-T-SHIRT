@@ -26,6 +26,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
   const isPrinting = order.serviceCategory === 'PRINTING'
   const serviceLabel = getServiceLabel(order)
   const statusLabel  = getStatusLabel(order)
+  const isApparel = isPrinting && (order.printingType === 'TSHIRT' || order.printingType === 'LACOSTE')
 
   function fmtM(n: number) { return '₵' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',') }
 
@@ -80,33 +81,112 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
             </div>
           </div>
 
+          {/* Apparel Size / Itemized Breakdown */}
+          {isApparel && order.sizes && typeof order.sizes === 'object' && (
+            (() => {
+              const items = (order.sizes as any)._items
+              if (Array.isArray(items) && items.length > 0) {
+                return (
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Apparel Breakdown</p>
+                    <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
+                      <table className="w-full text-sm">
+                        <thead className="bg-teal-500 text-white text-xs">
+                          <tr>
+                            <th className="py-2.5 pl-4 pr-3 text-left">Colour</th>
+                            <th className="py-2.5 px-3 text-center">Size</th>
+                            <th className="py-2.5 px-3 text-right">Qty</th>
+                            <th className="py-2.5 px-3 text-right">Unit Price</th>
+                            <th className="py-2.5 pl-3 pr-4 text-right">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                          {items.map((it: any, idx: number) => (
+                            <tr key={idx} className="odd:bg-white even:bg-slate-50 dark:odd:bg-transparent dark:even:bg-white/5">
+                              <td className="py-2.5 pl-4 pr-3 font-semibold text-slate-700 dark:text-slate-300">{it.color || 'Solid'}</td>
+                              <td className="py-2.5 px-3 text-center"><span className="inline-block px-2.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-600 dark:text-slate-400">{it.size}</span></td>
+                              <td className="py-2.5 px-3 text-right tabular-nums text-slate-700 dark:text-slate-300">{it.qty}</td>
+                              <td className="py-2.5 px-3 text-right tabular-nums text-slate-500">{fmtM(order.unitPrice)}</td>
+                              <td className="py-2.5 pl-3 pr-4 text-right tabular-nums font-bold text-teal-600 dark:text-teal-400">{fmtM(Number(it.qty || 0) * order.unitPrice)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )
+              }
+
+              // Fallback to legacy flat layout
+              const sizeKeys = Object.keys(order.sizes).filter(k => k !== '_items')
+              if (sizeKeys.length > 0) {
+                return (
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Apparel Size Breakdown</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {sizeKeys.map((size) => {
+                        const qty = Number((order.sizes as any)[size] || 0)
+                        return (
+                          <div key={size} className="rounded-xl border border-slate-100 dark:border-white/10 p-3 bg-slate-50 dark:bg-white/5 text-center">
+                            <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{size}</span>
+                            <span className="block text-lg font-black text-slate-900 dark:text-white mt-0.5 tabular-nums">{qty}</span>
+                            <span className="block text-[10px] text-slate-400">{fmtM(order.unitPrice)} ea</span>
+                            <span className="block text-xs font-semibold text-teal-600 dark:text-teal-400 mt-1.5">{fmtM(qty * order.unitPrice)}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              }
+              return null
+            })()
+          )}
+
           {/* Colour table (printing) */}
           {isPrinting && order.colors.length > 0 && (
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Breakdown</p>
-              <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/10">
-                <table className="w-full text-sm">
-                  <thead className="bg-teal-500 text-white">
-                    <tr>
-                      <th className="py-2.5 pl-4 pr-3 text-left font-semibold text-xs">Colour</th>
-                      <th className="py-2.5 px-3 text-right font-semibold text-xs">Qty</th>
-                      <th className="py-2.5 px-3 text-right font-semibold text-xs">Unit</th>
-                      <th className="py-2.5 pl-3 pr-4 text-right font-semibold text-xs">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+            isApparel ? (
+              // Only display selected colors summary card if we don't have the new itemized breakdown
+              (!((order.sizes as any)?._items && Array.isArray((order.sizes as any)?._items)) && (
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Selected Colours</p>
+                  <div className="flex flex-wrap gap-2">
                     {order.colors.map(c => (
-                      <tr key={c.id} className="odd:bg-white even:bg-slate-50 dark:odd:bg-transparent dark:even:bg-white/5">
-                        <td className="py-2.5 pl-4 pr-3 text-slate-700 dark:text-slate-300">{c.name}</td>
-                        <td className="py-2.5 px-3 text-right tabular-nums text-slate-700 dark:text-slate-300">{c.qty}</td>
-                        <td className="py-2.5 px-3 text-right tabular-nums text-slate-500">{fmtM(order.unitPrice)}</td>
-                        <td className="py-2.5 pl-3 pr-4 text-right tabular-nums font-medium text-slate-700 dark:text-slate-300">{fmtM(c.qty * order.unitPrice)}</td>
-                      </tr>
+                      <span key={c.id} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        <span className="h-2 w-2 rounded-full bg-teal-500" />
+                        {c.name}
+                      </span>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Breakdown</p>
+                <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/10">
+                  <table className="w-full text-sm">
+                    <thead className="bg-teal-500 text-white">
+                      <tr>
+                        <th className="py-2.5 pl-4 pr-3 text-left font-semibold text-xs">Colour</th>
+                        <th className="py-2.5 px-3 text-right font-semibold text-xs">Qty</th>
+                        <th className="py-2.5 px-3 text-right font-semibold text-xs">Unit</th>
+                        <th className="py-2.5 pl-3 pr-4 text-right font-semibold text-xs">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                      {order.colors.map(c => (
+                        <tr key={c.id} className="odd:bg-white even:bg-slate-50 dark:odd:bg-transparent dark:even:bg-white/5">
+                          <td className="py-2.5 pl-4 pr-3 text-slate-700 dark:text-slate-300">{c.name}</td>
+                          <td className="py-2.5 px-3 text-right tabular-nums text-slate-700 dark:text-slate-300">{c.qty}</td>
+                          <td className="py-2.5 px-3 text-right tabular-nums text-slate-500">{fmtM(order.unitPrice)}</td>
+                          <td className="py-2.5 pl-3 pr-4 text-right tabular-nums font-medium text-slate-700 dark:text-slate-300">{fmtM(c.qty * order.unitPrice)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )
           )}
 
           {/* Payment summary */}

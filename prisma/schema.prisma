@@ -30,6 +30,7 @@ enum ServiceCategory {
 
 enum PrintingType {
   TSHIRT
+  LACOSTE
   LOGO
   POSTER
   FLYER
@@ -98,6 +99,7 @@ model Order {
   balance     Decimal @default(0) @db.Decimal(12, 2)
 
   // ── Colour breakdown (printing only) ──────────────────────────────────────
+  sizes  Json?
   colors OrderColor[]
 
   @@index([status])

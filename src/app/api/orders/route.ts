@@ -41,13 +41,17 @@ export async function POST(req: Request) {
       description, dueDate, status = 'PENDING', notes,
       unitPrice, amountPaid = 0,
       colors = [],
+      sizes = null,
     } = body
 
     if (!clientName?.trim()) return NextResponse.json({ error: 'Client name is required' }, { status: 400 })
     if (!unitPrice || Number(unitPrice) <= 0) return NextResponse.json({ error: 'Unit price is required' }, { status: 400 })
 
     const isPrinting = serviceCategory === 'PRINTING'
-    const totalQty    = isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1
+    const isApparel  = isPrinting && (printingType === 'TSHIRT' || printingType === 'LACOSTE')
+    const totalQty    = isApparel
+      ? (sizes ? Object.values(sizes).reduce((s: number, q: any) => s + Number(q || 0), 0) : 0)
+      : (isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1)
     const totalAmount = parseFloat((totalQty * Number(unitPrice)).toFixed(2))
     const balance     = parseFloat((totalAmount - Number(amountPaid)).toFixed(2))
 
@@ -72,6 +76,7 @@ export async function POST(req: Request) {
         totalAmount,
         amountPaid:  Number(amountPaid),
         balance,
+        sizes: isApparel ? (sizes || {}) : null,
         colors: isPrinting && colors.length > 0 ? {
           create: colors
             .filter((c: { name: string; qty: number }) => c.name?.trim())

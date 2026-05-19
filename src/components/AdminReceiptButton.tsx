@@ -18,7 +18,85 @@ export default function AdminReceiptButton({ order }: { order: SerializedOrder }
     setLoading(true)
     try {
       const isPrinting = order.serviceCategory === 'PRINTING'
-      const colorRows = isPrinting && order.colors.length > 0
+      const isApparel = isPrinting && (order.printingType === 'TSHIRT' || order.printingType === 'LACOSTE')
+      
+      const rawItems = (order.sizes as any)?._items
+      const hasDetailedItems = isApparel && Array.isArray(rawItems) && rawItems.length > 0
+
+      const apparelBreakdownHtml = hasDetailedItems
+        ? `
+        <div class="sec-title">Apparel Breakdown</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Colour</th>
+              <th style="text-align:center">Size</th>
+              <th class="num">Qty</th>
+              <th class="num">Unit Price</th>
+              <th class="num">Line Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rawItems.map((it: any) => `
+              <tr>
+                <td style="font-weight:500">${it.color || 'Solid'}</td>
+                <td style="text-align:center"><span style="display:inline-block;padding:2px 6px;background:#f1f5f9;border-radius:4px;font-size:11px;font-weight:700;color:#475569">${it.size}</span></td>
+                <td class="num">${Number(it.qty).toLocaleString()}</td>
+                <td class="num">${fmtM(order.unitPrice)}</td>
+                <td class="num">${fmtM(Number(it.qty) * order.unitPrice)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2"><strong>Total</strong></td>
+              <td class="num">${order.totalQty.toLocaleString()}</td>
+              <td></td>
+              <td class="num">${fmtM(order.totalAmount)}</td>
+            </tr>
+          </tfoot>
+        </table>
+        `
+        : isApparel && order.sizes && Object.keys(order.sizes).length > 0
+          ? `
+          <div class="sec-title">Apparel Size Breakdown</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Size</th>
+                <th class="num">Qty</th>
+                <th class="num">Unit Price</th>
+                <th class="num">Line Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Object.entries(order.sizes).filter(([k]) => k !== '_items').map(([size, qty]) => `
+                <tr>
+                  <td style="font-weight:600;text-transform:uppercase">${size}</td>
+                  <td class="num">${Number(qty).toLocaleString()}</td>
+                  <td class="num">${fmtM(order.unitPrice)}</td>
+                  <td class="num">${fmtM(Number(qty) * order.unitPrice)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td><strong>Total</strong></td>
+                <td class="num">${order.totalQty.toLocaleString()}</td>
+                <td></td>
+                <td class="num">${fmtM(order.totalAmount)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          ${order.colors.length > 0 ? `
+            <div style="margin-bottom:24px;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:12px;color:#475569">
+              <strong>Selected Colours:</strong> ${order.colors.map(c => c.name).join(', ')}
+            </div>
+          ` : ''}
+          `
+          : ''
+
+      const colorRows = isPrinting && !isApparel && order.colors.length > 0
         ? order.colors.map(c => `
           <tr>
             <td>${c.name || '—'}</td>
@@ -95,7 +173,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       ${isPrinting ? `<div class="info-r"><span class="info-k">Unit price</span><span class="info-v">${fmtM(order.unitPrice)}</span></div>` : `<div class="info-r"><span class="info-k">Package price</span><span class="info-v">${fmtM(order.unitPrice)}</span></div>`}
     </div>
   </div>
-  ${isPrinting ? `
+  ${isApparel ? apparelBreakdownHtml : isPrinting ? `
   <div class="sec-title">Colour Breakdown</div>
   <table>
     <thead><tr><th>Colour / Style</th><th class="num">Qty</th><th class="num">Unit Price</th><th class="num">Line Total</th></tr></thead>

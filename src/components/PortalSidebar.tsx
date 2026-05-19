@@ -39,8 +39,8 @@ export default function PortalSidebar() {
         <Link key={href} href={href} onClick={() => setOpen(false)}
           className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
             isActive(href, exact)
-              ? 'bg-teal-500/10 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'
+              ? 'bg-teal-500/10 text-teal-600 dark:bg-red-500/10 dark:text-red-400'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-zinc-900/50 dark:hover:text-zinc-100'
           }`}>
           <Icon className="h-4 w-4 shrink-0" /> {label}
           {isActive(href, exact) && <ChevronRight className="h-3.5 w-3.5 ml-auto opacity-50" />}
@@ -50,9 +50,9 @@ export default function PortalSidebar() {
   )
 
   const UserBlock = () => (
-    <div className="border-t border-slate-200 dark:border-white/10 p-3 space-y-2">
+    <div className="border-t border-slate-200 dark:border-zinc-800 p-3 space-y-2">
       <div className="flex items-center gap-3 rounded-xl px-3 py-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 text-white text-xs font-bold shrink-0">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 text-white dark:from-red-600 dark:to-yellow-500 dark:text-black text-xs font-bold shrink-0">
           {initials(session?.user?.name ?? 'U')}
         </div>
         <div className="min-w-0 flex-1">
@@ -71,10 +71,10 @@ export default function PortalSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-slate-200 bg-white dark:border-white/10 dark:bg-[#0a0a0a]">
+      <aside className="hidden lg:flex flex-col w-60 shrink-0 h-screen sticky top-0 border-r border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-950/40 dark:backdrop-blur-xl">
         {/* Brand */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200 dark:border-white/10">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-lg">
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200 dark:border-zinc-800">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 text-white shadow-lg dark:from-red-600 dark:to-yellow-500 dark:text-black dark:shadow-[0_0_20px_rgba(220,38,38,0.3)]">
             <Printer className="h-4 w-4" />
           </span>
           <div>
@@ -89,16 +89,16 @@ export default function PortalSidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-xl px-4 py-3 dark:border-white/10 dark:bg-[#0a0a0a]/80">
+      <div className="lg:hidden sticky top-0 z-50 flex items-center justify-between border-b border-slate-200 bg-white/80 backdrop-blur-xl px-4 py-3 dark:border-zinc-800 dark:bg-black/60 dark:backdrop-blur-xl">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 text-white dark:from-red-600 dark:to-yellow-500 dark:text-black">
             <Printer className="h-3.5 w-3.5" />
           </span>
           <span className="text-sm font-black text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</span>
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <button onClick={() => setOpen(!open)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 dark:border-white/10">
+          <button onClick={() => setOpen(!open)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 dark:border-zinc-800">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -108,8 +108,8 @@ export default function PortalSidebar() {
       {open && (
         <div className="lg:hidden fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-[#0a0a0a] shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200 dark:border-white/10">
+          <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-zinc-950 shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-slate-200 dark:border-zinc-800">
               <span className="font-black text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</span>
               <button onClick={() => setOpen(false)}><X className="h-5 w-5 text-slate-400" /></button>
             </div>

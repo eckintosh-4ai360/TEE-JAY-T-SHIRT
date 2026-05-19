@@ -34,6 +34,7 @@ export type SerializedOrder = {
   amountPaid: number
   balance: number
   colors: SerializedColor[]
+  sizes: Record<string, number> | null
 }
 
 export function serializeOrder(
@@ -69,6 +70,7 @@ export function serializeOrder(
       qty: c.qty,
       orderId: c.orderId,
     })),
+    sizes: (order.sizes as Record<string, number>) ?? null,
   }
 }
 
@@ -115,6 +117,7 @@ export function getServiceLabel(order: SerializedOrder): string {
   if (order.printingType === 'OTHER') return order.printingTypeOther ?? 'Printing'
   const labels: Record<string, string> = {
     TSHIRT: 'T-Shirt Printing',
+    LACOSTE: 'Lacoste Printing',
     LOGO: 'Logo Printing',
     POSTER: 'Poster Printing',
     FLYER: 'Flyer Printing',

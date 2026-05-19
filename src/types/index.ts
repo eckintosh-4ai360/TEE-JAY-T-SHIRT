@@ -4,7 +4,7 @@ export type { SerializedOrder, SerializedColor, ColorEntry }
 
 export type OrderStatus = 'PENDING' | 'PRINTING' | 'COMPLETED' | 'DELIVERED' | 'CANCELLED'
 export type ServiceCategory = 'PRINTING' | 'PHOTOGRAPHY'
-export type PrintingType = 'TSHIRT' | 'LOGO' | 'POSTER' | 'FLYER' | 'OTHER'
+export type PrintingType = 'TSHIRT' | 'LACOSTE' | 'LOGO' | 'POSTER' | 'FLYER' | 'OTHER'
 export type PhotographyType = 'WEDDING' | 'BIRTHDAY' | 'GRADUATION' | 'OTHER'
 export type UserRole = 'ADMIN' | 'WORKER'
 
@@ -22,11 +22,12 @@ export const STATUS_META: Record<OrderStatus, StatusMeta> = {
 }
 
 export const PRINTING_TYPES: { value: PrintingType; label: string }[] = [
-  { value: 'TSHIRT', label: 'T-Shirt' },
-  { value: 'LOGO',   label: 'Logo' },
-  { value: 'POSTER', label: 'Poster' },
-  { value: 'FLYER',  label: 'Flyer' },
-  { value: 'OTHER',  label: 'Other (specify)' },
+  { value: 'TSHIRT',  label: 'T-Shirt' },
+  { value: 'LACOSTE', label: 'Lacoste' },
+  { value: 'LOGO',    label: 'Logo' },
+  { value: 'POSTER',  label: 'Poster' },
+  { value: 'FLYER',   label: 'Flyer' },
+  { value: 'OTHER',   label: 'Other (specify)' },
 ]
 
 export const PHOTOGRAPHY_TYPES: { value: PhotographyType; label: string }[] = [
@@ -54,6 +55,7 @@ export interface OrderPayload {
   unitPrice: number
   amountPaid: number
   colors: ColorEntry[]
+  sizes?: Record<string, number> | null
 }
 
 export interface WorkerUser {
