@@ -130,7 +130,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
 
       {/* Order details */}
       <section className="space-y-4">
-        <h2 className="label-section">Order Details</h2>
+        <h2 className="label-section">Order Detail</h2>
         <div>
           <label className="label" htmlFor="desc">{isPrinting ? 'Design Description' : 'Photography Brief'}</label>
           <textarea id="desc" className="input resize-none" rows={3} value={description} onChange={e => setDescription(e.target.value)} placeholder={isPrinting ? 'Design details, colours, placement…' : 'Event details, venue, expected count…'} />
