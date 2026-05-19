@@ -20,7 +20,7 @@ interface SMSResult {
 export async function sendSMS(
   recipients: string[],
   message: string,
-  senderId = 'TeeJay'
+  senderId = 'TEE-JAY MUL'
 ): Promise<SMSResult> {
   if (!MNOTIFY_API_KEY) {
     console.warn('[SMS] MNOTIFY_API_KEY not set – skipping SMS send')
