@@ -29,7 +29,7 @@ export default function TrackPage() {
   return (
     <div className="max-w-lg mx-auto py-16 space-y-8">
       <div className="text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-100 text-teal-600 mx-auto mb-4 dark:bg-teal-500/20 dark:text-teal-400">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 mx-auto mb-4 dark:bg-brand-500/20 dark:text-brand-400">
           <Search className="h-8 w-8" />
         </div>
         <h1 className="text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">Track Your Order</h1>
@@ -45,14 +45,14 @@ export default function TrackPage() {
         </div>
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <button type="submit" disabled={loading || !ref.trim()}
-          className="w-full rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-500 py-4 text-base font-bold text-white shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-2">
+          className="w-full rounded-2xl bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-2">
           {loading ? <><Loader2 className="h-5 w-5 animate-spin" /> Searching…</> : <><Search className="h-5 w-5" /> Track Order</>}
         </button>
       </form>
 
       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/5 text-sm text-slate-500 dark:text-slate-400">
         <p className="font-semibold text-slate-700 dark:text-slate-300 mb-1">Where is my receipt number?</p>
-        <p>Your receipt number (e.g. <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">TJ-20260519-AB3XY</span>) was provided when you placed your booking. Check your email or any printed receipt from us.</p>
+        <p>Your receipt number (e.g. <span className="font-mono font-black text-brand-600 dark:text-yellow-400">TJ-20260519-AB3XY</span>) was provided when you placed your booking. Check your email or any printed receipt from us.</p>
       </div>
     </div>
   )

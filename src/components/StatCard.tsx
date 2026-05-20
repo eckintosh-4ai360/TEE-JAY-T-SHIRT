@@ -4,18 +4,19 @@ interface StatCardProps {
   label: string
   value: string | number
   sub?: string
-  accent?: 'cyan' | 'purple' | 'green' | 'orange' | 'magenta' | 'red' | 'blue'
+  accent?: 'cyan' | 'purple' | 'green' | 'orange' | 'magenta' | 'red' | 'blue' | 'yellow'
   icon?: React.ReactNode
   badge?: string
 }
 
 const accentMap = {
-  cyan:    { bg: 'bg-[#dcf6f7] dark:bg-cyan-500/20',     iconBg: 'bg-cyan-400',   text: 'text-cyan-600 dark:text-cyan-400' },
+  cyan:    { bg: 'bg-red-50 dark:bg-red-500/10',         iconBg: 'bg-red-600 text-white',   text: 'text-red-600 dark:text-red-400' },
   purple:  { bg: 'bg-[#eeedfc] dark:bg-purple-500/20',   iconBg: 'bg-indigo-400', text: 'text-indigo-600 dark:text-indigo-400' },
-  green:   { bg: 'bg-[#e2faec] dark:bg-emerald-500/20',  iconBg: 'bg-emerald-400', text: 'text-emerald-600 dark:text-emerald-400' },
+  green:   { bg: 'bg-yellow-50 dark:bg-yellow-500/10',   iconBg: 'bg-yellow-500 text-black', text: 'text-yellow-600 dark:text-yellow-400' },
+  yellow:  { bg: 'bg-yellow-50 dark:bg-yellow-500/10',   iconBg: 'bg-yellow-500 text-black', text: 'text-yellow-600 dark:text-yellow-400' },
   orange:  { bg: 'bg-[#fcf1e3] dark:bg-orange-500/20',   iconBg: 'bg-orange-400',  text: 'text-orange-600 dark:text-orange-400' },
   magenta: { bg: 'bg-[#fbe8f6] dark:bg-fuchsia-500/20',  iconBg: 'bg-fuchsia-400', text: 'text-fuchsia-600 dark:text-fuchsia-400' },
-  red:     { bg: 'bg-[#fdebea] dark:bg-red-500/20',      iconBg: 'bg-red-400',     text: 'text-red-600 dark:text-red-400' },
+  red:     { bg: 'bg-red-50 dark:bg-red-500/10',         iconBg: 'bg-red-600 text-white',   text: 'text-red-600 dark:text-red-400' },
   blue:    { bg: 'bg-[#e8f1fc] dark:bg-blue-500/20',     iconBg: 'bg-blue-400',    text: 'text-blue-600 dark:text-blue-400' },
 }
 

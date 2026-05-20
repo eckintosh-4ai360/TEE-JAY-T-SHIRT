@@ -189,7 +189,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
         <div className="grid grid-cols-2 gap-4">
           {(['PRINTING', 'PHOTOGRAPHY'] as ServiceCategory[]).map(s => (
             <button key={s} type="button" onClick={() => setService(s)}
-              className={`rounded-xl border-2 py-3 text-sm font-bold transition-all ${service === s ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300' : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'}`}>
+              className={`rounded-xl border-2 py-3 text-sm font-bold transition-all ${service === s ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300' : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'}`}>
               {s === 'PRINTING' ? '🖨 Printing' : '📷 Photography'}
             </button>
           ))}
@@ -200,7 +200,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
             return (
               <button key={value} type="button"
                 onClick={() => isPrinting ? setPrintType(value as PrintingType) : setPhotoType(value as PhotographyType)}
-                className={`rounded-xl border-2 py-2.5 px-3 text-sm font-semibold transition-all ${active ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300' : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'}`}>
+                className={`rounded-xl border-2 py-2.5 px-3 text-sm font-semibold transition-all ${active ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300' : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'}`}>
                 {label}
               </button>
             )
@@ -261,7 +261,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
           <div>
             <h2 className="label-section flex items-center justify-between">
               <span>Garment Breakdown ({printType === 'TSHIRT' ? 'T-Shirt' : 'Lacoste'})</span>
-              <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 font-mono">Total: {totalSizeQty} pcs</span>
+              <span className="text-xs font-semibold text-brand-600 dark:text-yellow-400 font-mono">Total: {totalSizeQty} pcs</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Specify the color, select the size, and enter the quantity for each item.</p>
           </div>
@@ -322,7 +322,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
             <button
               type="button"
               onClick={() => setItems(p => [...p, { _key: Date.now() + Math.random(), color: '', size: 'M', qty: 0 }])}
-              className="flex items-center gap-1.5 text-sm font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400"
+              className="flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400"
             >
               <Plus className="h-4 w-4" /> Add Row
             </button>
@@ -336,7 +336,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
           <div>
             <h2 className="label-section flex items-center justify-between">
               <span>Colours & Quantities Breakdown</span>
-              <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 font-mono">Total: {totalSizeQty} pcs</span>
+              <span className="text-xs font-semibold text-brand-600 dark:text-yellow-400 font-mono">Total: {totalSizeQty} pcs</span>
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Specify the color/style and quantity for each item.</p>
           </div>
@@ -385,7 +385,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
             <button
               type="button"
               onClick={() => setItems(p => [...p, { _key: Date.now() + Math.random(), color: '', size: 'M', qty: 0 }])}
-              className="flex items-center gap-1.5 text-sm font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400"
+              className="flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400"
             >
               <Plus className="h-4 w-4" /> Add Row
             </button>
@@ -409,14 +409,14 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
         <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 divide-y divide-slate-100 dark:divide-white/5 text-sm overflow-hidden">
           {isPrinting && <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Total ({totalQty} × {fmtCurrency(unitPrice)})</span><span className="font-medium tabular-nums">{fmtCurrency(totalAmount)}</span></div>}
           {!isPrinting && <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Package price</span><span className="font-medium tabular-nums">{fmtCurrency(unitPrice)}</span></div>}
-          <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Paid</span><span className="font-medium tabular-nums text-emerald-600">{fmtCurrency(amountPaid)}</span></div>
-          <div className="flex justify-between px-4 py-3 font-semibold"><span>Balance due</span><span className={`tabular-nums ${balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>{fmtCurrency(balance)}</span></div>
+          <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Paid</span><span className="font-bold tabular-nums text-yellow-600 dark:text-yellow-500">{fmtCurrency(amountPaid)}</span></div>
+          <div className="flex justify-between px-4 py-3 font-semibold font-mono"><span>Balance due</span><span className={`tabular-nums ${balance > 0 ? 'text-red-600' : 'text-yellow-600 dark:text-yellow-500'}`}>{fmtCurrency(balance)}</span></div>
         </div>
       </section>
 
       <div className="flex items-center gap-3 pt-2">
         <button type="submit" disabled={loading || !clientName.trim() || !unitPrice || (isApparel && totalSizeQty <= 0)}
-          className="rounded-xl bg-teal-500 px-6 py-3 text-sm font-bold text-white hover:bg-teal-600 disabled:opacity-50 transition-colors">
+          className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50 transition-all shadow-md shadow-brand-500/15">
           {loading ? 'Saving…' : isEdit ? 'Update Order' : 'Create Order'}
         </button>
         <button type="button" onClick={() => router.back()}

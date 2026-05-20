@@ -34,13 +34,13 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
     <div className="max-w-2xl mx-auto space-y-6 py-4">
       {/* Header */}
       <div className="rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-lg">
-        <div className="bg-gradient-to-r from-teal-500 to-cyan-600 p-6 sm:p-8 flex justify-between items-start text-white">
+        <div className="bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 p-6 sm:p-8 flex justify-between items-start text-white">
           <div>
             <div className="flex items-center gap-2 mb-1">
               {isPrinting ? <Printer className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
-              <span className="text-sm font-bold opacity-90">TEE-JAY MULTIMEDIA</span>
+              <span className="text-sm font-black tracking-wider">TEE-JAY MULTIMEDIA</span>
             </div>
-            <p className="text-xs opacity-75">Printing & Photography Services</p>
+            <p className="text-[10px] uppercase tracking-widest opacity-80">Printing & Photography Services</p>
           </div>
           <div className="text-right">
             <p className="text-xs font-bold opacity-75 uppercase tracking-widest">Receipt</p>
@@ -69,13 +69,13 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
           {/* Client info */}
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400 mb-2">Bill To</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">Bill To</p>
               <p className="font-bold text-slate-900 dark:text-white">{order.clientName}</p>
               {order.clientPhone && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{order.clientPhone}</p>}
               {order.clientEmail && <p className="text-sm text-slate-500 dark:text-slate-400">{order.clientEmail}</p>}
             </div>
             <div className="rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400 mb-2">Order Details</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">Order Details</p>
               {order.description && <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">{order.description}</p>}
               {order.dueDate && <p className="text-sm text-slate-500 dark:text-slate-400">Due: {fmtDate(order.dueDate)}</p>}
             </div>
@@ -91,7 +91,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Apparel Breakdown</p>
                     <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
                       <table className="w-full text-sm">
-                        <thead className="bg-teal-500 text-white text-xs">
+                        <thead className="bg-zinc-900 dark:bg-zinc-950 text-white text-xs">
                           <tr>
                             <th className="py-2.5 pl-4 pr-3 text-left">Colour</th>
                             <th className="py-2.5 px-3 text-center">Size</th>
@@ -107,7 +107,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                               <td className="py-2.5 px-3 text-center"><span className="inline-block px-2.5 py-0.5 rounded bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-600 dark:text-slate-400">{it.size}</span></td>
                               <td className="py-2.5 px-3 text-right tabular-nums text-slate-700 dark:text-slate-300">{it.qty}</td>
                               <td className="py-2.5 px-3 text-right tabular-nums text-slate-500">{fmtM(order.unitPrice)}</td>
-                              <td className="py-2.5 pl-3 pr-4 text-right tabular-nums font-bold text-teal-600 dark:text-teal-400">{fmtM(Number(it.qty || 0) * order.unitPrice)}</td>
+                              <td className="py-2.5 pl-3 pr-4 text-right tabular-nums font-bold text-slate-900 dark:text-white">{fmtM(Number(it.qty || 0) * order.unitPrice)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -131,7 +131,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                             <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{size}</span>
                             <span className="block text-lg font-black text-slate-900 dark:text-white mt-0.5 tabular-nums">{qty}</span>
                             <span className="block text-[10px] text-slate-400">{fmtM(order.unitPrice)} ea</span>
-                            <span className="block text-xs font-semibold text-teal-600 dark:text-teal-400 mt-1.5">{fmtM(qty * order.unitPrice)}</span>
+                            <span className="block text-xs font-bold text-slate-900 dark:text-white mt-1.5">{fmtM(qty * order.unitPrice)}</span>
                           </div>
                         )
                       })}
@@ -153,7 +153,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                   <div className="flex flex-wrap gap-2">
                     {order.colors.map(c => (
                       <span key={c.id} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                        <span className="h-2 w-2 rounded-full bg-teal-500" />
+                        <span className="h-2 w-2 rounded-full bg-brand-500" />
                         {c.name}
                       </span>
                     ))}
@@ -165,7 +165,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                 <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Breakdown</p>
                 <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/10">
                   <table className="w-full text-sm">
-                    <thead className="bg-teal-500 text-white">
+                    <thead className="bg-zinc-900 text-white dark:bg-zinc-950">
                       <tr>
                         <th className="py-2.5 pl-4 pr-3 text-left font-semibold text-xs">Colour</th>
                         <th className="py-2.5 px-3 text-right font-semibold text-xs">Qty</th>
@@ -198,25 +198,25 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
               </div>
               <div className="flex justify-between px-4 py-2.5 bg-white dark:bg-transparent">
                 <span className="text-slate-500">Paid</span>
-                <span className="tabular-nums font-medium text-emerald-600">{fmtM(order.amountPaid)}</span>
+                <span className="tabular-nums font-bold text-yellow-600 dark:text-yellow-500">{fmtM(order.amountPaid)}</span>
               </div>
-              <div className="flex justify-between px-4 py-3 bg-slate-50 dark:bg-white/5 font-bold">
+              <div className="flex justify-between px-4 py-3 bg-slate-50 dark:bg-white/5 font-bold font-mono">
                 <span>Balance</span>
-                <span className={`tabular-nums ${order.balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>{fmtM(order.balance)}</span>
+                <span className={`tabular-nums ${order.balance > 0 ? 'text-red-600' : 'text-yellow-600 dark:text-yellow-500'}`}>{fmtM(order.balance)}</span>
               </div>
             </div>
           </div>
 
           {/* Thank you */}
-          <div className="rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-500/10 dark:to-cyan-500/10 border border-teal-100 dark:border-teal-500/20 p-5 text-center">
-            <p className="font-bold text-teal-700 dark:text-teal-300">Thank you for choosing Tee-Jay Multimedia!</p>
-            <p className="font-medium italic text-teal-700 dark:text-teal-300">We serve you at ease</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Keep this receipt number for your records: <span className="font-mono font-bold text-teal-600 dark:text-teal-400">{order.receiptNumber}</span></p>
+          <div className="rounded-2xl bg-gradient-to-br from-brand-50/5 to-yellow-50/5 dark:from-brand-500/5 dark:to-yellow-500/5 border border-brand-500/10 dark:border-brand-500/20 p-5 text-center">
+            <p className="font-extrabold text-brand-600 dark:text-yellow-400">Thank you for choosing Tee-Jay Multimedia!</p>
+            <p className="font-bold italic text-slate-700 dark:text-slate-300">We serve you at ease</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Keep this receipt number for your records: <span className="font-mono font-black text-brand-600 dark:text-yellow-400">{order.receiptNumber}</span></p>
           </div>
 
           <div className="flex gap-3 pt-2 print:hidden">
             <PrintButton />
-            <Link href="/track" className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-bold text-center text-slate-600 hover:border-teal-400 transition-colors dark:border-white/10 dark:text-slate-300">
+            <Link href="/track" className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-bold text-center text-slate-600 hover:border-brand-500 hover:text-brand-600 transition-colors dark:border-white/10 dark:text-slate-300">
               Track Another
             </Link>
           </div>

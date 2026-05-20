@@ -23,7 +23,7 @@ export default async function AdminOrdersPage() {
           <p className="text-sm text-slate-500 mt-0.5">{orders.length} total orders</p>
         </div>
         <Link href="/admin/orders/new"
-          className="inline-flex items-center gap-2 rounded-xl bg-teal-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-600 transition-colors">
+          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-red-600 to-yellow-500 px-4 py-2.5 text-sm font-bold text-white dark:text-black hover:from-red-500 hover:to-yellow-400 transition-colors shadow-sm shadow-red-600/25">
           <Plus className="h-4 w-4" /> New Order
         </Link>
       </div>
@@ -33,7 +33,7 @@ export default async function AdminOrdersPage() {
           <div className="flex flex-col items-center py-20 text-center">
             <Search className="h-10 w-10 text-slate-300 dark:text-slate-600 mb-3" />
             <p className="font-semibold text-slate-500">No orders yet</p>
-            <Link href="/admin/orders/new" className="mt-4 rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-bold text-white">Create first order</Link>
+            <Link href="/admin/orders/new" className="mt-4 rounded-xl bg-gradient-to-r from-red-600 to-yellow-500 px-5 py-2.5 text-sm font-bold text-white dark:text-black hover:from-red-500 hover:to-yellow-400 transition-colors shadow-sm shadow-red-600/25">Create first order</Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -68,13 +68,13 @@ export default async function AdminOrdersPage() {
                       </td>
                       <td className="py-3 px-3 text-xs text-slate-500 hidden md:table-cell">{o.assignedToName ?? <span className="text-slate-300 dark:text-slate-600">—</span>}</td>
                       <td className="py-3 px-3 text-right tabular-nums font-medium text-slate-700 dark:text-slate-300 hidden md:table-cell">{fmtCurrency(o.totalAmount)}</td>
-                      <td className="py-3 px-3 text-right tabular-nums text-emerald-600 font-medium hidden lg:table-cell">{fmtCurrency(o.amountPaid)}</td>
+                      <td className="py-3 px-3 text-right tabular-nums text-yellow-600 dark:text-yellow-500 font-medium hidden lg:table-cell">{fmtCurrency(o.amountPaid)}</td>
                       <td className="py-3 px-3 text-right tabular-nums hidden lg:table-cell">
-                        <span className={o.balance > 0 ? 'text-red-600 font-semibold' : 'text-emerald-600'}>{fmtCurrency(o.balance)}</span>
+                        <span className={o.balance > 0 ? 'text-red-600 font-semibold' : 'text-yellow-600 dark:text-yellow-500'}>{fmtCurrency(o.balance)}</span>
                       </td>
                       <td className="py-3 px-3 text-xs text-slate-400 hidden sm:table-cell">{fmtDate(o.dueDate)}</td>
                       <td className="py-3 pl-3 pr-5">
-                        <Link href={`/admin/orders/${o.id}`} className="rounded-lg bg-slate-100 dark:bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-teal-50 hover:text-teal-700 dark:hover:bg-teal-500/20 dark:hover:text-teal-300 transition-colors whitespace-nowrap">
+                        <Link href={`/admin/orders/${o.id}`} className="rounded-lg bg-slate-100 dark:bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/20 dark:hover:text-red-300 transition-colors whitespace-nowrap">
                           View →
                         </Link>
                       </td>

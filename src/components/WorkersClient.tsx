@@ -55,14 +55,14 @@ export default function WorkersClient({ workers: initial }: Props) {
           <p className="text-sm text-slate-500 mt-0.5">{workers.length} team member{workers.length !== 1 ? 's' : ''}</p>
         </div>
         <button onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 rounded-xl bg-teal-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-teal-600 transition-colors">
+          className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-700 shadow-lg shadow-brand-500/20 transition-all active:scale-95 shrink-0">
           <UserPlus className="h-4 w-4" /> Add Worker
         </button>
       </div>
 
       {/* Add worker form */}
       {showForm && (
-        <div className="rounded-2xl border border-teal-200 dark:border-teal-500/30 bg-teal-50/50 dark:bg-teal-500/5 p-6">
+        <div className="rounded-2xl border border-brand-200 dark:border-brand-500/30 bg-brand-50/10 dark:bg-brand-500/5 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-slate-900 dark:text-white">New Worker Account</h2>
             <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -77,7 +77,7 @@ export default function WorkersClient({ workers: initial }: Props) {
             <div><label className="label">Password *</label><input className="input" type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)} placeholder="Min. 6 characters" /></div>
             <div className="sm:col-span-2 flex gap-3">
               <button type="submit" disabled={loading}
-                className="rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-teal-600 disabled:opacity-50 flex items-center gap-2">
+                className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-brand-500/20 transition-all">
                 {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating…</> : 'Create Worker'}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
@@ -114,7 +114,7 @@ export default function WorkersClient({ workers: initial }: Props) {
                 <tr key={w.id} className={`transition-colors ${!w.isActive ? 'opacity-50' : 'hover:bg-slate-50/50 dark:hover:bg-white/5'}`}>
                   <td className="py-3 pl-5 pr-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 text-white text-xs font-bold shrink-0">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-yellow-500 text-white text-xs font-bold shrink-0 shadow-sm shadow-brand-500/10">
                         {w.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                       </div>
                       <div>
@@ -129,13 +129,13 @@ export default function WorkersClient({ workers: initial }: Props) {
                     <span className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-slate-100 dark:bg-white/10 text-xs font-bold text-slate-700 dark:text-slate-300">{w._count.assignedOrders}</span>
                   </td>
                   <td className="py-3 px-3 text-center">
-                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${w.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400'}`}>
+                    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-bold ${w.isActive ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-400' : 'bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-400'}`}>
                       {w.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="py-3 pl-3 pr-5">
                     <button onClick={() => toggleActive(w.id, w.isActive)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${w.isActive ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400'}`}>
+                      className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-colors ${w.isActive ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20' : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 dark:bg-yellow-500/10 dark:text-yellow-400'}`}>
                       {w.isActive ? 'Deactivate' : 'Reactivate'}
                     </button>
                   </td>

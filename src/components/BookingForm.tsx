@@ -123,25 +123,25 @@ export default function BookingForm() {
 
   if (success) return (
     <div className="max-w-lg mx-auto text-center py-16 space-y-6">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mx-auto dark:bg-emerald-500/20 dark:text-emerald-400">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-yellow-100 text-yellow-700 mx-auto dark:bg-yellow-500/20 dark:text-yellow-400">
         <CheckCircle className="h-10 w-10" />
       </div>
       <div>
         <h2 className="text-2xl font-black text-slate-900 dark:text-white">Booking Confirmed!</h2>
         <p className="mt-2 text-slate-500 dark:text-slate-400">Your order has been placed successfully.</p>
       </div>
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-500/30 dark:bg-emerald-500/10">
-        <p className="text-xs font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2">Your Receipt Number</p>
-        <p className="text-3xl font-black text-emerald-700 dark:text-emerald-300 font-mono tracking-wider">{success.receiptNumber}</p>
+      <div className="rounded-2xl border border-yellow-200 bg-yellow-50/50 p-6 dark:border-yellow-500/30 dark:bg-yellow-500/10">
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Your Receipt Number</p>
+        <p className="text-3xl font-black text-brand-600 dark:text-yellow-400 font-mono tracking-wider">{success.receiptNumber}</p>
         <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Save this number to track your order status</p>
       </div>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <button onClick={() => router.push(`/receipt/${success.receiptNumber}`)}
-          className="rounded-xl bg-emerald-500 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-600 transition-colors">
+          className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white hover:bg-brand-700 shadow-md shadow-brand-500/15 transition-all">
           View Receipt
         </button>
         <button onClick={() => router.push('/track')}
-          className="rounded-xl border border-slate-200 px-6 py-3 text-sm font-bold text-slate-600 hover:border-teal-400 transition-colors dark:border-white/10 dark:text-slate-300">
+          className="rounded-xl border border-slate-200 px-6 py-3 text-sm font-bold text-slate-600 hover:border-brand-500 hover:text-brand-600 transition-colors dark:border-white/10 dark:text-slate-300">
           Track Order
         </button>
       </div>
@@ -166,7 +166,7 @@ export default function BookingForm() {
             <button key={val} type="button" onClick={() => { setService(val); setStep('type') }}
               className={`flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-sm font-bold transition-all ${
                 service === val
-                  ? color === 'teal' ? 'border-teal-500 bg-teal-50 text-teal-700 dark:bg-teal-500/10 dark:text-teal-300 dark:border-teal-500'
+                  ? color === 'teal' ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300 dark:border-brand-500'
                                      : 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500'
                   : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20'
               }`}>
@@ -282,12 +282,12 @@ export default function BookingForm() {
                 <button
                   type="button"
                   onClick={() => setItems(p => [...p, { _key: Date.now() + Math.random(), color: '', size: 'M', qty: 0 }])}
-                  className="flex items-center gap-1.5 text-sm font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400"
+                  className="flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400"
                 >
                   <Plus className="h-4 w-4" /> Add Row
                 </button>
                 <div className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
-                  Total pieces: <span className="text-teal-600 dark:text-teal-400 font-mono text-base">{totalSizeQty}</span> pcs
+                  Total pieces: <span className="text-slate-900 dark:text-white font-mono text-base">{totalSizeQty}</span> pcs
                 </div>
               </div>
             </div>
@@ -345,12 +345,12 @@ export default function BookingForm() {
                 <button
                   type="button"
                   onClick={() => setItems(p => [...p, { _key: Date.now() + Math.random(), color: '', size: 'M', qty: 0 }])}
-                  className="flex items-center gap-1.5 text-sm font-bold text-teal-600 hover:text-teal-700 dark:text-teal-400"
+                  className="flex items-center gap-1.5 text-sm font-bold text-brand-600 hover:text-brand-700 dark:text-brand-400"
                 >
                   <Plus className="h-4 w-4" /> Add Row
                 </button>
                 <div className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
-                  Total pieces: <span className="text-teal-600 dark:text-teal-400 font-mono text-base">{totalSizeQty}</span> pcs
+                  Total pieces: <span className="text-slate-900 dark:text-white font-mono text-base">{totalSizeQty}</span> pcs
                 </div>
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function BookingForm() {
                 type="button"
                 onClick={() => setStep('details')}
                 disabled={isPrinting && totalSizeQty <= 0}
-                className="rounded-xl bg-teal-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-teal-600 disabled:opacity-50 transition-colors flex items-center gap-1"
+                className="rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-brand-700 disabled:opacity-50 transition-colors flex items-center gap-1 shadow-md shadow-brand-500/15"
               >
                 Next: Client Details <ChevronRight className="h-4 w-4" />
               </button>
@@ -433,8 +433,8 @@ export default function BookingForm() {
                   <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 divide-y divide-slate-100 dark:divide-white/5 text-sm overflow-hidden">
                     {isPrinting && <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Total pieces</span><span className="font-bold tabular-nums dark:text-white">{totalQty}</span></div>}
                     <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Subtotal</span><span className="font-medium tabular-nums">{fmtCurrency(totalAmount)}</span></div>
-                    <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Paid</span><span className="font-medium tabular-nums text-emerald-600">{fmtCurrency(amountPaid)}</span></div>
-                    <div className="flex justify-between px-4 py-3 font-semibold"><span>Balance</span><span className={`tabular-nums ${balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>{fmtCurrency(balance)}</span></div>
+                    <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Paid</span><span className="font-bold tabular-nums text-yellow-600 dark:text-yellow-500">{fmtCurrency(amountPaid)}</span></div>
+                    <div className="flex justify-between px-4 py-3 font-semibold font-mono"><span>Balance</span><span className={`tabular-nums ${balance > 0 ? 'text-red-600' : 'text-yellow-600 dark:text-yellow-500'}`}>{fmtCurrency(balance)}</span></div>
                   </div>
                 </section>
               </>
@@ -442,7 +442,7 @@ export default function BookingForm() {
           })()}
 
           <button type="submit" disabled={loading || !name.trim() || !phone.trim() || !unitPrice || (isPrinting && totalSizeQty <= 0)}
-            className="w-full rounded-2xl bg-gradient-to-r from-teal-500 to-cyan-500 py-4 text-base font-bold text-white shadow-lg hover:shadow-teal-500/30 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-2">
+            className="w-full rounded-2xl bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none flex items-center justify-center gap-2">
             {loading ? <><Loader2 className="h-5 w-5 animate-spin" /> Submitting…</> : <>Submit Booking <ChevronRight className="h-5 w-5" /></>}
           </button>
         </form>
