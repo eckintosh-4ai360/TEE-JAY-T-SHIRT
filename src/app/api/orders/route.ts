@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { serializeOrder, generateReceiptNumber, fmtCurrency, fmtDate, getServiceLabel } from '@/lib/utils'
+import { serializeOrder, generateReceiptNumber, fmtCurrency, fmtDate, getServiceLabel, sumSizeQuantities } from '@/lib/utils'
 import { sendSMS, buildOrderConfirmationSMS } from '@/lib/sms'
 import type { Prisma } from '@prisma/client'
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const isPrinting = serviceCategory === 'PRINTING'
     const isApparel  = isPrinting && (printingType === 'TSHIRT' || printingType === 'LACOSTE')
     const totalQty    = isApparel
-      ? (sizes ? Object.values(sizes).reduce((s: number, q: any) => s + Number(q || 0), 0) : 0)
+      ? sumSizeQuantities(sizes)
       : (isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1)
     const totalAmount = parseFloat((totalQty * Number(unitPrice)).toFixed(2))
     const balance     = parseFloat((totalAmount - Number(amountPaid)).toFixed(2))

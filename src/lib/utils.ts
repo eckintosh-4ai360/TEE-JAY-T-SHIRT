@@ -92,6 +92,19 @@ export function computeTotals(
   return { totalQty, totalAmount, balance }
 }
 
+export function sumSizeQuantities(
+  sizes: Record<string, unknown> | null | undefined
+): number {
+  if (!sizes || typeof sizes !== 'object') return 0
+
+  return Object.entries(sizes).reduce((sum, [key, value]) => {
+    if (key === '_items') return sum
+
+    const qty = typeof value === 'number' ? value : Number(value ?? 0)
+    return Number.isFinite(qty) ? sum + qty : sum
+  }, 0)
+}
+
 // ── Receipt number generator ───────────────────────────────────────────────────
 export function generateReceiptNumber(): string {
   const now = new Date()
