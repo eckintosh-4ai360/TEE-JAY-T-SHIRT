@@ -208,6 +208,38 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
             </div>
           </div>
 
+
+          {/* Photography Guides */}
+          {order.serviceCategory === 'PHOTOGRAPHY' && (
+            <div className="rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 p-6 dark:border-purple-500/20 dark:from-purple-950/20 dark:to-pink-950/10 space-y-4">
+              <div>
+                <h3 className="text-sm font-black text-purple-900 dark:text-purple-300 uppercase tracking-widest flex items-center gap-2">
+                  <Camera className="h-4 w-4 text-purple-500 shrink-0" />
+                  Photography Guides & Documents
+                </h3>
+                <p className="text-xs text-purple-700 dark:text-purple-400/80 mt-1">Please download or view our curated packages and preparation guides for your photography session.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <a 
+                  href="/REVISED TJM BRIDAL PACKAGES.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-red-800 to-yellow-700 px-4 py-3 text-xs font-black text-white hover:from-purple-700 hover:to-pink-700 shadow-md shadow-purple-500/20 hover:shadow-purple-500/35 hover:-translate-y-0.5 transition-all duration-200 active:translate-y-0 text-center"
+                >
+                  <span>View Bridal Packages</span>
+                </a>
+                <a 
+                  href="/THINGS TO FACTOR WHEN YOU BOOK US - TEE-JAY MULTIMEDIA.pdf" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2.5 rounded-xl border border-purple-200 bg-white px-4 py-3 text-xs font-black text-purple-700 hover:bg-purple-50 hover:border-purple-300 shadow-sm hover:-translate-y-0.5 transition-all duration-200 active:translate-y-0 dark:border-purple-500/30 dark:bg-purple-950/20 dark:text-purple-300 dark:hover:bg-purple-950/40 text-center"
+                >
+                  <span>View Necessities Guide</span>
+                </a>
+              </div>
+            </div>
+          )}
+
           {/* Thank you */}
           <div className="rounded-2xl bg-gradient-to-br from-brand-50/5 to-yellow-50/5 dark:from-brand-500/5 dark:to-yellow-500/5 border border-brand-500/10 dark:border-brand-500/20 p-5 text-center">
             <p className="font-extrabold text-brand-600 dark:text-yellow-400">Thank you for choosing Tee-Jay Multimedia!</p>

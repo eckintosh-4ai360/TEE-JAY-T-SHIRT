@@ -142,6 +142,37 @@ export default function BookingForm() {
         <p className="text-3xl font-black text-brand-600 dark:text-yellow-400 font-mono tracking-wider">{success.receiptNumber}</p>
         <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Save this number to track your order status</p>
       </div>
+
+      {service === 'PHOTOGRAPHY' && (
+        <div className="rounded-2xl border border-purple-200/60 bg-gradient-to-br from-purple-50/50 to-pink-50/30 p-6 dark:border-purple-500/20 dark:from-purple-950/20 dark:to-pink-950/10 text-left space-y-4 shadow-sm">
+          <div>
+            <h3 className="text-sm font-black text-purple-950 dark:text-purple-300 uppercase tracking-widest flex items-center gap-2">
+              <Camera className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              Photography Guides & Info
+            </h3>
+            <p className="text-xs text-purple-700/80 dark:text-purple-400/80 mt-1">Please review our packages and essential guidelines for your photography session.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <a 
+              href="/REVISED TJM BRIDAL PACKAGES.pdf" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-red-800 to-yellow-700 px-4 py-3 text-xs font-black text-white hover:from-purple-700 hover:to-pink-700 shadow-md shadow-purple-500/20 hover:shadow-purple-500/35 hover:-translate-y-0.5 transition-all duration-200 active:translate-y-0 text-center"
+            >
+              <span>View Bridal Packages</span>
+            </a>
+            <a 
+              href="/THINGS TO FACTOR WHEN YOU BOOK US - TEE-JAY MULTIMEDIA.pdf" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2.5 rounded-xl border border-purple-200 bg-white px-4 py-3 text-xs font-black text-purple-700 hover:bg-purple-50 hover:border-purple-300 shadow-sm hover:-translate-y-0.5 transition-all duration-200 active:translate-y-0 dark:border-purple-500/30 dark:bg-purple-950/20 dark:text-purple-300 dark:hover:bg-purple-950/40 text-center"
+            >
+              <span>View Necessities Guide</span>
+            </a>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <button onClick={() => router.push(`/receipt/${success.receiptNumber}`)}
           className="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white hover:bg-brand-700 shadow-md shadow-brand-500/15 transition-all">

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Printer, Camera, ArrowRight, CheckCircle, Clock, Star, Zap } from 'lucide-react'
+import { Printer, Camera, Palette, ArrowRight, CheckCircle, Clock, Star, Zap } from 'lucide-react'
 
 export const metadata = {
   title: 'Tee-Jay — Professional Printing & Photography Services',
@@ -43,7 +43,7 @@ export default function LandingPage() {
           <h2 className="text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">Our Services</h2>
           <p className="mt-2 text-slate-500 dark:text-slate-400">Choose the service that fits your needs</p>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
 
           {/* Printing */}
           <div className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 dark:border-white/10 dark:bg-white/5">
@@ -85,8 +85,31 @@ export default function LandingPage() {
                 ))}
               </div>
               <Link href="/book?service=photography"
-                className="inline-flex items-center gap-2 rounded-xl bg-purple-500/10 px-5 py-2.5 text-sm font-bold text-purple-600 hover:bg-purple-500 hover:text-white transition-all dark:bg-purple-500/20 dark:text-purple-400 dark:hover:bg-purple-500 dark:hover:text-white">
+                className="inline-flex items-center gap-2 rounded-xl bg-purple-500/10 px-5 py-2.5 text-sm font-bold text-purple-600 hover:bg-purple-50 hover:text-white transition-all dark:bg-purple-500/20 dark:text-purple-400 dark:hover:bg-purple-50 dark:hover:text-white">
                 Book Photography <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Design */}
+          <div className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 dark:border-white/10 dark:bg-white/5">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-500 text-white shadow-lg mb-5">
+                <Palette className="h-7 w-7" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Design Services</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-6">Custom professional branding and graphic design solutions</p>
+              <div className="grid grid-cols-2 gap-2 mb-6">
+                {['Logos', 'Flyers', 'Banners', 'Social Media'].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+                    <CheckCircle className="h-4 w-4 text-indigo-500 shrink-0" /> {item}
+                  </div>
+                ))}
+              </div>
+              <Link href="/book?service=design"
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 px-5 py-2.5 text-sm font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all dark:bg-indigo-500/20 dark:text-indigo-400 dark:hover:bg-indigo-600 dark:hover:text-white">
+                Book Design <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
