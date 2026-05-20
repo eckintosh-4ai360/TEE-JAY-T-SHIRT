@@ -26,14 +26,13 @@ enum UserRole {
 enum ServiceCategory {
   PRINTING
   PHOTOGRAPHY
+  DESIGN
 }
 
 enum PrintingType {
   TSHIRT
   LACOSTE
-  LOGO
   POSTER
-  FLYER
   OTHER
 }
 
@@ -41,6 +40,12 @@ enum PhotographyType {
   WEDDING
   BIRTHDAY
   GRADUATION
+  OTHER
+}
+
+enum DesignType {
+  FLYER
+  LOGO
   OTHER
 }
 
@@ -75,6 +80,8 @@ model Order {
   printingTypeOther    String?
   photographyType      PhotographyType?
   photographyTypeOther String?
+  designType           DesignType?
+  designTypeOther      String?
 
   // ── Client information ────────────────────────────────────────────────────
   clientName  String

@@ -19,6 +19,8 @@ export type SerializedOrder = {
   printingTypeOther: string | null
   photographyType: string | null
   photographyTypeOther: string | null
+  designType: string | null
+  designTypeOther: string | null
   clientName: string
   clientPhone: string | null
   clientEmail: string | null
@@ -50,6 +52,8 @@ export function serializeOrder(
     printingTypeOther: order.printingTypeOther ?? null,
     photographyType: order.photographyType ?? null,
     photographyTypeOther: order.photographyTypeOther ?? null,
+    designType: (order as any).designType ?? null,
+    designTypeOther: (order as any).designTypeOther ?? null,
     clientName: order.clientName,
     clientPhone: order.clientPhone ?? null,
     clientEmail: order.clientEmail ?? null,
@@ -125,15 +129,22 @@ export function getServiceLabel(order: SerializedOrder): string {
     }
     return labels[order.photographyType] ?? 'Photography'
   }
+  if (order.serviceCategory === 'DESIGN') {
+    if (!order.designType) return 'Design'
+    if (order.designType === 'OTHER') return order.designTypeOther ?? 'Design'
+    const labels: Record<string, string> = {
+      FLYER: 'Flyer Design',
+      LOGO:  'Logo Design',
+    }
+    return labels[order.designType] ?? 'Design'
+  }
   // PRINTING
   if (!order.printingType) return 'Printing'
   if (order.printingType === 'OTHER') return order.printingTypeOther ?? 'Printing'
   const labels: Record<string, string> = {
-    TSHIRT: 'T-Shirt Printing',
+    TSHIRT:  'T-Shirt Printing',
     LACOSTE: 'Lacoste Printing',
-    LOGO: 'Logo Printing',
-    POSTER: 'Poster Printing',
-    FLYER: 'Flyer Printing',
+    POSTER:  'Poster Printing',
   }
   return labels[order.printingType] ?? 'Printing'
 }
@@ -141,7 +152,7 @@ export function getServiceLabel(order: SerializedOrder): string {
 export function getStatusLabel(order: SerializedOrder): string {
   const labels: Record<string, string> = {
     PENDING: 'Pending',
-    PRINTING: order.serviceCategory === 'PHOTOGRAPHY' ? 'In Progress' : 'Printing',
+    PRINTING: (order.serviceCategory === 'PHOTOGRAPHY' || order.serviceCategory === 'DESIGN') ? 'In Progress' : 'Printing',
     COMPLETED: 'Completed',
     DELIVERED: 'Delivered',
     CANCELLED: 'Cancelled',

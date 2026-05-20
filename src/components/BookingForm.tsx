@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Printer, Camera, ChevronRight, Plus, X, Loader2, CheckCircle } from 'lucide-react'
-import { PRINTING_TYPES, PHOTOGRAPHY_TYPES, type ServiceCategory, type PrintingType, type PhotographyType } from '@/types'
+import { Printer, Camera, Palette, ChevronRight, Plus, X, Loader2, CheckCircle } from 'lucide-react'
+import { PRINTING_TYPES, PHOTOGRAPHY_TYPES, DESIGN_TYPES, type ServiceCategory, type PrintingType, type PhotographyType, type DesignType } from '@/types'
 import { computeTotals, fmtCurrency } from '@/lib/utils'
 
 interface OrderItem {
@@ -20,12 +20,17 @@ export default function BookingForm() {
 
   const [step, setStep] = useState<'service' | 'type' | 'details'>('service')
   const [service, setService] = useState<ServiceCategory | null>(
-    params.get('service') === 'photography' ? 'PHOTOGRAPHY' : params.get('service') === 'printing' ? 'PRINTING' : null
+    params.get('service') === 'photography' ? 'PHOTOGRAPHY'
+    : params.get('service') === 'printing' ? 'PRINTING'
+    : params.get('service') === 'design' ? 'DESIGN'
+    : null
   )
   const [printType,   setPrintType]   = useState<PrintingType | null>(null)
   const [printOther,  setPrintOther]  = useState('')
   const [photoType,   setPhotoType]   = useState<PhotographyType | null>(null)
   const [photoOther,  setPhotoOther]  = useState('')
+  const [designType,  setDesignType]  = useState<DesignType | null>(null)
+  const [designOther, setDesignOther] = useState('')
 
   // Client fields
   const [name,  setName]  = useState('')
@@ -49,8 +54,9 @@ export default function BookingForm() {
   useEffect(() => { if (service) setStep('type') }, [service])
 
   const isPrinting = service === 'PRINTING'
+  const isDesign   = service === 'DESIGN'
   const isApparel  = isPrinting && (printType === 'TSHIRT' || printType === 'LACOSTE')
-  
+
   const totalSizeQty = isPrinting
     ? items.reduce((sum, it) => sum + Number(it.qty || 0), 0)
     : 0
@@ -94,8 +100,8 @@ export default function BookingForm() {
         description: desc, dueDate: due, notes, unitPrice, amountPaid,
         colors: aggregatedColors,
       }
-      if (service === 'PRINTING') { 
-        body.printingType = printType; 
+      if (service === 'PRINTING') {
+        body.printingType = printType;
         if (printType === 'OTHER') body.printingTypeOther = printOther;
         if (isApparel) {
           const aggregatedSizes: Record<string, any> = {}
@@ -111,6 +117,7 @@ export default function BookingForm() {
         }
       }
       if (service === 'PHOTOGRAPHY') { body.photographyType = photoType; if (photoType === 'OTHER') body.photographyTypeOther = photoOther }
+      if (service === 'DESIGN') { body.designType = designType; if (designType === 'OTHER') body.designTypeOther = designOther }
 
       const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error ?? `HTTP ${res.status}`) }
@@ -158,16 +165,18 @@ export default function BookingForm() {
       {/* Step 1 — Service */}
       <section className="space-y-4">
         <h2 className="label-section">1. Choose Service</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {([
-            { val: 'PRINTING' as ServiceCategory, label: 'Printing', icon: Printer, color: 'teal' },
-            { val: 'PHOTOGRAPHY' as ServiceCategory, label: 'Photography', icon: Camera, color: 'purple' },
+            { val: 'PRINTING'    as ServiceCategory, label: 'Printing',    icon: Printer, color: 'teal'   },
+            { val: 'PHOTOGRAPHY' as ServiceCategory, label: 'Photography', icon: Camera,  color: 'purple' },
+            { val: 'DESIGN'      as ServiceCategory, label: 'Design',      icon: Palette, color: 'indigo' },
           ]).map(({ val, label, icon: Icon, color }) => (
             <button key={val} type="button" onClick={() => { setService(val); setStep('type') }}
               className={`flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-sm font-bold transition-all ${
                 service === val
-                  ? color === 'teal' ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300 dark:border-brand-500'
-                                     : 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500'
+                  ? color === 'teal'   ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300 dark:border-brand-500'
+                  : color === 'purple' ? 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500'
+                                       : 'border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500'
                   : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20'
               }`}>
               <Icon className="h-8 w-8" /> {label}
@@ -188,32 +197,34 @@ export default function BookingForm() {
             <select
               id="sType"
               className="input text-base font-semibold"
-              value={service === 'PRINTING' ? (printType || '') : (photoType || '')}
+              value={service === 'PRINTING' ? (printType || '') : service === 'PHOTOGRAPHY' ? (photoType || '') : (designType || '')}
               onChange={(e) => {
                 const val = e.target.value
-                if (service === 'PRINTING') {
-                  setPrintType(val as PrintingType)
-                } else {
-                  setPhotoType(val as PhotographyType)
-                }
+                if (service === 'PRINTING') setPrintType(val as PrintingType)
+                else if (service === 'PHOTOGRAPHY') setPhotoType(val as PhotographyType)
+                else setDesignType(val as DesignType)
               }}
             >
-              <option value="">-- Choose {service === 'PRINTING' ? 'Printing' : 'Photography'} Type --</option>
-              {(service === 'PRINTING' ? PRINTING_TYPES : PHOTOGRAPHY_TYPES).map(({ value, label }) => (
+              <option value="">-- Choose {service === 'PRINTING' ? 'Printing' : service === 'PHOTOGRAPHY' ? 'Photography' : 'Design'} Type --</option>
+              {(service === 'PRINTING' ? PRINTING_TYPES : service === 'PHOTOGRAPHY' ? PHOTOGRAPHY_TYPES : DESIGN_TYPES).map(({ value, label }) => (
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
           </div>
 
-          {((service === 'PRINTING' && printType === 'OTHER') || (service === 'PHOTOGRAPHY' && photoType === 'OTHER')) && (
+          {((service === 'PRINTING' && printType === 'OTHER') || (service === 'PHOTOGRAPHY' && photoType === 'OTHER') || (service === 'DESIGN' && designType === 'OTHER')) && (
             <div>
               <label className="label" htmlFor="sOther">Specify Type *</label>
               <input
                 id="sOther"
                 className="input"
                 placeholder="Please specify your service type"
-                value={service === 'PRINTING' ? printOther : photoOther}
-                onChange={e => service === 'PRINTING' ? setPrintOther(e.target.value) : setPhotoOther(e.target.value)}
+                value={service === 'PRINTING' ? printOther : service === 'PHOTOGRAPHY' ? photoOther : designOther}
+                onChange={e => {
+                  if (service === 'PRINTING') setPrintOther(e.target.value)
+                  else if (service === 'PHOTOGRAPHY') setPhotoOther(e.target.value)
+                  else setDesignOther(e.target.value)
+                }}
               />
             </div>
           )}
@@ -357,7 +368,7 @@ export default function BookingForm() {
           )}
 
           {/* Next Button */}
-          {((service === 'PRINTING' && printType) || (service === 'PHOTOGRAPHY' && photoType)) && (
+          {((service === 'PRINTING' && printType) || (service === 'PHOTOGRAPHY' && photoType) || (service === 'DESIGN' && designType)) && (
             <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex justify-end">
               <button
                 type="button"
@@ -401,9 +412,9 @@ export default function BookingForm() {
                     </div>
                   </div>
                   <div>
-                    <label className="label" htmlFor="bDesc">{service === 'PHOTOGRAPHY' ? 'Event Details / Brief' : 'Design Description'}</label>
+                    <label className="label" htmlFor="bDesc">{service === 'PHOTOGRAPHY' ? 'Event Details / Brief' : service === 'DESIGN' ? 'Design Brief' : 'Design Description'}</label>
                     <textarea id="bDesc" className="input resize-none" rows={3} value={desc} onChange={e => setDesc(e.target.value)}
-                      placeholder={service === 'PHOTOGRAPHY' ? 'Tell us about your event, venue, expected guests…' : 'Describe your design, colours, placement…'} />
+                      placeholder={service === 'PHOTOGRAPHY' ? 'Tell us about your event, venue, expected guests…' : service === 'DESIGN' ? 'Describe what you need — style, colours, usage…' : 'Describe your design, colours, placement…'} />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -422,7 +433,7 @@ export default function BookingForm() {
                   <h2 className="label-section">{pricingNum}. Pricing</h2>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="label" htmlFor="bUnit">{isPrinting ? 'Unit Price (GHS) *' : 'Package Price (GHS) *'}</label>
+                      <label className="label" htmlFor="bUnit">{isPrinting ? 'Unit Price (GHS) *' : isDesign ? 'Design Fee (GHS) *' : 'Package Price (GHS) *'}</label>
                       <input id="bUnit" type="number" min={0} step={0.01} className="input tabular-nums" required value={unitPrice || ''} onChange={e => setUnitPrice(Number(e.target.value))} placeholder="0.00" />
                     </div>
                     <div>

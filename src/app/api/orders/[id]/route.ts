@@ -35,6 +35,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const {
       serviceCategory, printingType, printingTypeOther,
       photographyType, photographyTypeOther,
+      designType, designTypeOther,
       clientName, clientPhone, clientEmail,
       assignedToId, description, dueDate, status, notes,
       unitPrice, amountPaid = 0, colors = [], sizes = null,
@@ -42,7 +43,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const isPrinting = serviceCategory === 'PRINTING'
     const isApparel  = isPrinting && (printingType === 'TSHIRT' || printingType === 'LACOSTE')
-    const totalQty    = isApparel
+    const totalQty   = isApparel
       ? sumSizeQuantities(sizes)
       : (isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1)
     const totalAmount = parseFloat((totalQty * Number(unitPrice)).toFixed(2))
@@ -58,6 +59,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         printingTypeOther: printingTypeOther ?? null,
         photographyType: photographyType ?? null,
         photographyTypeOther: photographyTypeOther ?? null,
+        designType: designType ?? null,
+        designTypeOther: designTypeOther ?? null,
         clientName: clientName?.trim(), clientPhone: clientPhone?.trim() || null,
         clientEmail: clientEmail?.trim() || null,
         assignedToId: assignedToId || null,

@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { computeTotals, fmtCurrency } from '@/lib/utils'
 import {
-  STATUS_META, PRINTING_TYPES, PHOTOGRAPHY_TYPES,
-  type OrderStatus, type ServiceCategory, type PrintingType, type PhotographyType,
+  STATUS_META, PRINTING_TYPES, PHOTOGRAPHY_TYPES, DESIGN_TYPES,
+  type OrderStatus, type ServiceCategory, type PrintingType, type PhotographyType, type DesignType,
   type SerializedOrder, type ColorEntry
 } from '@/types'
 import { Plus, X } from 'lucide-react'
@@ -75,11 +75,13 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
   const router = useRouter()
   const isEdit = Boolean(order)
 
-  const [service,    setService]    = useState<ServiceCategory>((order?.serviceCategory as ServiceCategory) ?? 'PRINTING')
-  const [printType,  setPrintType]  = useState<PrintingType | ''>((order?.printingType as PrintingType) ?? '')
-  const [printOther, setPrintOther] = useState(order?.printingTypeOther ?? '')
-  const [photoType,  setPhotoType]  = useState<PhotographyType | ''>((order?.photographyType as PhotographyType) ?? '')
-  const [photoOther, setPhotoOther] = useState(order?.photographyTypeOther ?? '')
+  const [service,      setService]      = useState<ServiceCategory>((order?.serviceCategory as ServiceCategory) ?? 'PRINTING')
+  const [printType,    setPrintType]    = useState<PrintingType | ''>((order?.printingType as PrintingType) ?? '')
+  const [printOther,   setPrintOther]   = useState(order?.printingTypeOther ?? '')
+  const [photoType,    setPhotoType]    = useState<PhotographyType | ''>((order?.photographyType as PhotographyType) ?? '')
+  const [photoOther,   setPhotoOther]   = useState(order?.photographyTypeOther ?? '')
+  const [designType,   setDesignType]   = useState<DesignType | ''>((order?.designType as DesignType) ?? '')
+  const [designOther,  setDesignOther]  = useState((order as any)?.designTypeOther ?? '')
 
   const [clientName,  setClientName]  = useState(order?.clientName  ?? '')
   const [clientPhone, setClientPhone] = useState(order?.clientPhone ?? '')
@@ -96,8 +98,9 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
   const [error,       setError]       = useState<string | null>(null)
 
   const isPrinting = service === 'PRINTING'
+  const isDesign   = service === 'DESIGN'
   const isApparel  = isPrinting && (printType === 'TSHIRT' || printType === 'LACOSTE')
-  
+
   const totalSizeQty = isPrinting
     ? items.reduce((sum, it) => sum + Number(it.qty || 0), 0)
     : 0
@@ -164,8 +167,14 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
         body.sizes = null
         body.printingType = undefined
         body.printingTypeOther = undefined
-        body.photographyType = photoType || undefined
-        if (photoType === 'OTHER') body.photographyTypeOther = photoOther
+        if (service === 'PHOTOGRAPHY') {
+          body.photographyType = photoType || undefined
+          if (photoType === 'OTHER') body.photographyTypeOther = photoOther
+        }
+        if (service === 'DESIGN') {
+          body.designType = designType || undefined
+          if (designType === 'OTHER') body.designTypeOther = designOther
+        }
       }
 
       const url    = isEdit ? `/api/orders/${order!.id}` : '/api/orders'
@@ -186,20 +195,20 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
       {/* Service type */}
       <section className="space-y-4">
         <h2 className="label-section">Service Type</h2>
-        <div className="grid grid-cols-2 gap-4">
-          {(['PRINTING', 'PHOTOGRAPHY'] as ServiceCategory[]).map(s => (
+        <div className="grid grid-cols-3 gap-4">
+          {(['PRINTING', 'PHOTOGRAPHY', 'DESIGN'] as ServiceCategory[]).map(s => (
             <button key={s} type="button" onClick={() => setService(s)}
               className={`rounded-xl border-2 py-3 text-sm font-bold transition-all ${service === s ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300' : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'}`}>
-              {s === 'PRINTING' ? '🖨 Printing' : '📷 Photography'}
+              {s === 'PRINTING' ? '🖨 Printing' : s === 'PHOTOGRAPHY' ? '📷 Photography' : '🎨 Design'}
             </button>
           ))}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {(isPrinting ? PRINTING_TYPES : PHOTOGRAPHY_TYPES).map(({ value, label }) => {
-            const active = isPrinting ? printType === value : photoType === value
+          {(isPrinting ? PRINTING_TYPES : isDesign ? DESIGN_TYPES : PHOTOGRAPHY_TYPES).map(({ value, label }) => {
+            const active = isPrinting ? printType === value : isDesign ? designType === value : photoType === value
             return (
               <button key={value} type="button"
-                onClick={() => isPrinting ? setPrintType(value as PrintingType) : setPhotoType(value as PhotographyType)}
+                onClick={() => isPrinting ? setPrintType(value as PrintingType) : isDesign ? setDesignType(value as DesignType) : setPhotoType(value as PhotographyType)}
                 className={`rounded-xl border-2 py-2.5 px-3 text-sm font-semibold transition-all ${active ? 'border-brand-500 bg-brand-50/10 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300' : 'border-slate-200 text-slate-500 dark:border-white/10 dark:text-slate-400'}`}>
                 {label}
               </button>
@@ -209,8 +218,11 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
         {isPrinting && printType === 'OTHER' && (
           <input className="input" placeholder="Specify printing type" value={printOther} onChange={e => setPrintOther(e.target.value)} />
         )}
-        {!isPrinting && photoType === 'OTHER' && (
+        {!isPrinting && !isDesign && photoType === 'OTHER' && (
           <input className="input" placeholder="Specify photography type" value={photoOther} onChange={e => setPhotoOther(e.target.value)} />
+        )}
+        {isDesign && designType === 'OTHER' && (
+          <input className="input" placeholder="Specify design type" value={designOther} onChange={e => setDesignOther(e.target.value)} />
         )}
       </section>
 
@@ -231,8 +243,8 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
       <section className="space-y-4">
         <h2 className="label-section">Order Details</h2>
         <div>
-          <label className="label" htmlFor="desc">{isPrinting ? 'Design Description' : 'Photography Brief'}</label>
-          <textarea id="desc" className="input resize-none" rows={3} value={description} onChange={e => setDescription(e.target.value)} placeholder={isPrinting ? 'Design details, colours, placement…' : 'Event details, venue, expected count…'} />
+          <label className="label" htmlFor="desc">{isPrinting ? 'Design Description' : isDesign ? 'Design Brief' : 'Photography Brief'}</label>
+          <textarea id="desc" className="input resize-none" rows={3} value={description} onChange={e => setDescription(e.target.value)} placeholder={isPrinting ? 'Design details, colours, placement…' : isDesign ? 'Describe what you need — style, colours, usage…' : 'Event details, venue, expected count…'} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div><label className="label" htmlFor="dd">Due Date</label><input id="dd" type="date" className="input" value={dueDate} onChange={e => setDueDate(e.target.value)} /></div>
@@ -398,7 +410,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
         <h2 className="label-section">Pricing</h2>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="label" htmlFor="up">{isPrinting ? 'Unit Price (GHS) *' : 'Package Price (GHS) *'}</label>
+            <label className="label" htmlFor="up">{isPrinting ? 'Unit Price (GHS) *' : isDesign ? 'Design Fee (GHS) *' : 'Package Price (GHS) *'}</label>
             <input id="up" type="number" min={0} step={0.01} className="input tabular-nums" required value={unitPrice || ''} onChange={e => setUnitPrice(Number(e.target.value))} placeholder="0.00" />
           </div>
           <div>
@@ -408,7 +420,7 @@ export default function AdminOrderForm({ order, workers = [] }: Props) {
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 divide-y divide-slate-100 dark:divide-white/5 text-sm overflow-hidden">
           {isPrinting && <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Total ({totalQty} × {fmtCurrency(unitPrice)})</span><span className="font-medium tabular-nums">{fmtCurrency(totalAmount)}</span></div>}
-          {!isPrinting && <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Package price</span><span className="font-medium tabular-nums">{fmtCurrency(unitPrice)}</span></div>}
+          {!isPrinting && <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">{isDesign ? 'Design fee' : 'Package price'}</span><span className="font-medium tabular-nums">{fmtCurrency(unitPrice)}</span></div>}
           <div className="flex justify-between px-4 py-2.5"><span className="text-slate-500">Paid</span><span className="font-bold tabular-nums text-yellow-600 dark:text-yellow-500">{fmtCurrency(amountPaid)}</span></div>
           <div className="flex justify-between px-4 py-3 font-semibold font-mono"><span>Balance due</span><span className={`tabular-nums ${balance > 0 ? 'text-red-600' : 'text-yellow-600 dark:text-yellow-500'}`}>{fmtCurrency(balance)}</span></div>
         </div>

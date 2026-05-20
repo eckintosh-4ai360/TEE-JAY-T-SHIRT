@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel, getStatusLabel } from '@/lib/utils'
 import { STATUS_META } from '@/types'
-import { CheckCircle, Clock, Printer, Camera } from 'lucide-react'
+import { CheckCircle, Clock, Printer, Camera, Palette } from 'lucide-react'
 import Link from 'next/link'
 import PrintButton from '@/components/PrintButton'
 
@@ -24,6 +24,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
   const order = serializeOrder(raw)
   const meta  = STATUS_META[order.status as keyof typeof STATUS_META]
   const isPrinting = order.serviceCategory === 'PRINTING'
+  const isDesign   = order.serviceCategory === 'DESIGN'
   const serviceLabel = getServiceLabel(order)
   const statusLabel  = getStatusLabel(order)
   const isApparel = isPrinting && (order.printingType === 'TSHIRT' || order.printingType === 'LACOSTE')
@@ -37,7 +38,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
         <div className="bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 p-6 sm:p-8 flex justify-between items-start text-white">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              {isPrinting ? <Printer className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
+              {isPrinting ? <Printer className="h-5 w-5" /> : isDesign ? <Palette className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
               <span className="text-sm font-black tracking-wider">TEE-JAY MULTIMEDIA</span>
             </div>
             <p className="text-[10px] uppercase tracking-widest opacity-80">Printing & Photography Services</p>

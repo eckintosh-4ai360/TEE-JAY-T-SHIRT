@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const status   = searchParams.get('status')
 
   const where: Prisma.OrderWhereInput = {}
-  if (category) where.serviceCategory = category as 'PRINTING' | 'PHOTOGRAPHY'
+  if (category) where.serviceCategory = category as 'PRINTING' | 'PHOTOGRAPHY' | 'DESIGN'
   if (status)   where.status = status as Prisma.EnumOrderStatusFilter
   if (session.user?.role === 'WORKER') where.assignedToId = session.user.id
 
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
       serviceCategory = 'PRINTING',
       printingType, printingTypeOther,
       photographyType, photographyTypeOther,
+      designType, designTypeOther,
       clientName, clientPhone, clientEmail,
       assignedToId,
       description, dueDate, status = 'PENDING', notes,
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
     const totalQty    = isApparel
       ? sumSizeQuantities(sizes)
       : (isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1)
+
     const totalAmount = parseFloat((totalQty * Number(unitPrice)).toFixed(2))
     const balance     = parseFloat((totalAmount - Number(amountPaid)).toFixed(2))
 
@@ -63,6 +65,8 @@ export async function POST(req: Request) {
         printingTypeOther:    printingTypeOther   ?? null,
         photographyType:      photographyType ?? null,
         photographyTypeOther: photographyTypeOther ?? null,
+        designType:           designType      ?? null,
+        designTypeOther:      designTypeOther ?? null,
         clientName: clientName.trim(),
         clientPhone: clientPhone?.trim() || null,
         clientEmail: clientEmail?.trim() || null,

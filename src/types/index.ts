@@ -3,9 +3,10 @@ import type { SerializedOrder, SerializedColor, ColorEntry } from '@/lib/utils'
 export type { SerializedOrder, SerializedColor, ColorEntry }
 
 export type OrderStatus = 'PENDING' | 'PRINTING' | 'COMPLETED' | 'DELIVERED' | 'CANCELLED'
-export type ServiceCategory = 'PRINTING' | 'PHOTOGRAPHY'
-export type PrintingType = 'TSHIRT' | 'LACOSTE' | 'LOGO' | 'POSTER' | 'FLYER' | 'OTHER'
+export type ServiceCategory = 'PRINTING' | 'PHOTOGRAPHY' | 'DESIGN'
+export type PrintingType = 'TSHIRT' | 'LACOSTE' | 'POSTER' | 'OTHER'
 export type PhotographyType = 'WEDDING' | 'BIRTHDAY' | 'GRADUATION' | 'OTHER'
+export type DesignType = 'FLYER' | 'LOGO' | 'OTHER'
 export type UserRole = 'ADMIN' | 'WORKER'
 
 export interface StatusMeta {
@@ -24,9 +25,7 @@ export const STATUS_META: Record<OrderStatus, StatusMeta> = {
 export const PRINTING_TYPES: { value: PrintingType; label: string }[] = [
   { value: 'TSHIRT',  label: 'T-Shirt' },
   { value: 'LACOSTE', label: 'Lacoste' },
-  { value: 'LOGO',    label: 'Logo' },
   { value: 'POSTER',  label: 'Poster' },
-  { value: 'FLYER',   label: 'Flyer' },
   { value: 'OTHER',   label: 'Other (specify)' },
 ]
 
@@ -37,6 +36,12 @@ export const PHOTOGRAPHY_TYPES: { value: PhotographyType; label: string }[] = [
   { value: 'OTHER',      label: 'Other (specify)' },
 ]
 
+export const DESIGN_TYPES: { value: DesignType; label: string }[] = [
+  { value: 'FLYER', label: 'Flyer' },
+  { value: 'LOGO',  label: 'Logo' },
+  { value: 'OTHER', label: 'Other (specify)' },
+]
+
 // Payload sent from form to API
 export interface OrderPayload {
   serviceCategory: ServiceCategory
@@ -44,6 +49,8 @@ export interface OrderPayload {
   printingTypeOther?: string
   photographyType?: PhotographyType
   photographyTypeOther?: string
+  designType?: DesignType
+  designTypeOther?: string
   clientName: string
   clientPhone: string
   clientEmail: string
