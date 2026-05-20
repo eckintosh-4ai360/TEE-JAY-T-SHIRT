@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
@@ -114,7 +114,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
         status:        statusLabel,
       })
-      sendSMS([updated.clientPhone], msg).catch(console.error)
+      after(async () => {
+        const result = await sendSMS([updated.clientPhone!], msg)
+        if (!result.ok) {
+          console.error('[SMS] Worker status update SMS failed', {
+            orderId: updated.id,
+            receiptNumber: updated.receiptNumber,
+            clientPhone: updated.clientPhone,
+            error: result.error,
+            raw: result.raw,
+          })
+        }
+      })
     }
     return NextResponse.json(serialized)
   }
@@ -140,7 +151,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
       status:        statusLabel,
     })
-    sendSMS([updated.clientPhone], msg).catch(console.error)
+    after(async () => {
+      const result = await sendSMS([updated.clientPhone!], msg)
+      if (!result.ok) {
+        console.error('[SMS] Admin status update SMS failed', {
+          orderId: updated.id,
+          receiptNumber: updated.receiptNumber,
+          clientPhone: updated.clientPhone,
+          error: result.error,
+          raw: result.raw,
+        })
+      }
+    })
   }
   return NextResponse.json(serialized)
 }

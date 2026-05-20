@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
@@ -99,7 +99,18 @@ export async function POST(req: Request) {
         balance:       fmtCurrency(serialized.balance),
         dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
       })
-      sendSMS([order.clientPhone], msg).catch(console.error)
+      after(async () => {
+        const result = await sendSMS([order.clientPhone!], msg)
+        if (!result.ok) {
+          console.error('[SMS] Order confirmation SMS failed', {
+            orderId: order.id,
+            receiptNumber: order.receiptNumber,
+            clientPhone: order.clientPhone,
+            error: result.error,
+            raw: result.raw,
+          })
+        }
+      })
     }
 
     return NextResponse.json(serialized, { status: 201 })
