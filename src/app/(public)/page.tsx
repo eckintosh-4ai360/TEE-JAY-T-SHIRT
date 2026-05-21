@@ -24,7 +24,7 @@ export default function LandingPage() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-yellow-500">Printing & Photography</span>
         </h1>
         <p className="mt-6 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-          From custom T-shirts to stunning event photography — Tee-Jay Multimedia delivers premium quality on time, every time. Book your service today and track your order in real-time.
+          From custom T-shirts to stunning Designn and event Photography — Tee-Jay Multimedia delivers premium quality on time, every time. Book your service today and track your order in real-time.
         </p>
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/book"
