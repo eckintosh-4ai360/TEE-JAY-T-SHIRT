@@ -145,8 +145,87 @@ export default function LandingPage() {
           className="inline-flex items-center gap-2 rounded-2xl border-2 border-brand-600 px-8 py-4 text-base font-bold text-brand-600 hover:bg-brand-600 hover:text-white transition-all dark:text-brand-400 dark:hover:bg-brand-600 dark:hover:text-white">
           <Clock className="h-5 w-5" /> Track My Order
         </Link>
-      
       </section>
+
+      {/* ── Inquiries & Contact ─────────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5 p-8 sm:p-12 shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 pointer-events-none" />
+        <div className="relative text-center max-w-2xl mx-auto space-y-6">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">Need More Info or Have Inquiries?</h2>
+          <p className="text-slate-600 dark:text-slate-400">
+            Have questions about pricing, bulk orders, or custom designs? Get in touch with us directly via WhatsApp or Call. We are happy to help!
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 max-w-lg mx-auto">
+            {/* WhatsApp */}
+            <a 
+              href="https://wa.me/233248365559"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 p-4 rounded-2xl border border-emerald-500/20 bg-emerald-50/30 hover:bg-emerald-50 dark:bg-emerald-950/10 dark:hover:bg-emerald-950/20 transition-all hover:scale-[1.02] duration-200 group text-left"
+            >
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+                <Image 
+                  src="/whatsapp.png" 
+                  alt="WhatsApp Contact" 
+                  fill 
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Chat on WhatsApp</p>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 leading-tight">024 836 5559</p>
+              </div>
+            </a>
+
+            {/* Phone Calls */}
+            <div className="flex flex-col gap-3">
+              <a 
+                href="tel:0257903397"
+                className="flex items-center gap-4 p-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/50 hover:bg-slate-100 dark:bg-zinc-900/30 dark:hover:bg-zinc-900/60 transition-all hover:scale-[1.02] duration-200 group text-left"
+              >
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+                  <Image 
+                    src="/call.png" 
+                    alt="Call Contact" 
+                    fill 
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Call Contact 1</p>
+                  <p className="text-base font-black text-slate-800 dark:text-slate-200 leading-tight">025 790 3397</p>
+                </div>
+              </a>
+
+              <a 
+                href="tel:053968360"
+                className="flex items-center gap-4 p-3 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50/50 hover:bg-slate-100 dark:bg-zinc-900/30 dark:hover:bg-zinc-900/60 transition-all hover:scale-[1.02] duration-200 group text-left"
+              >
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl">
+                  <Image 
+                    src="/call.png" 
+                    alt="Call Contact" 
+                    fill 
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Call Contact 2</p>
+                  <p className="text-base font-black text-slate-800 dark:text-slate-200 leading-tight">053 968 360</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────────────────────────── */}
+      <footer className="pt-8 border-t border-slate-200/40 dark:border-zinc-800/40 text-center">
+        <p className="text-xs font-semibold text-slate-500 dark:text-zinc-500 uppercase tracking-wider">
+          &copy; 2026 Tee-Jay Multimedia. All rights reserved.
+        </p>
+      </footer>
     </div>
   )
 }
