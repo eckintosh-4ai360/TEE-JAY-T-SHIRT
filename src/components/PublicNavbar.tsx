@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -23,12 +24,12 @@ export default function PublicNavbar() {
     <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl dark:border-zinc-800 dark:bg-black/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
 
-        {/* Brand */}
-        <Link href="/" className="flex items-center gap-3 group" onClick={() => setOpen(false)}>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-red-600 to-yellow-500 text-white dark:text-black shadow-lg shadow-red-600/20 dark:shadow-[0_0_20px_rgba(220,38,38,0.3)] transition-transform duration-300 group-hover:scale-105">
-            <Printer className="h-5 w-5" />
-          </span>
-          <div>
+
+        <Link href="/" className="relative flex items-center gap-3 group" onClick={() => setOpen(false)}>
+
+            <Image src="/logo.png" alt="Logo" width={40} height={40} className="rounded-xl object-cover" priority />
+          
+          <div className="z-10">
             <p className="text-sm font-black tracking-tight leading-none text-slate-900 dark:text-white">TEE-JAY MULTIMEDIA</p>
             <p className="text-[10px] font-medium leading-none text-red-600 dark:text-yellow-500 mt-1 hidden sm:block">Printing & Photography</p>
           </div>

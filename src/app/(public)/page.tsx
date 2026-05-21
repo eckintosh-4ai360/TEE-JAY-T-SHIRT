@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Printer, Camera, Palette, ArrowRight, CheckCircle, Clock, Star, Zap } from 'lucide-react'
 
 export const metadata = {
@@ -144,8 +145,7 @@ export default function LandingPage() {
           className="inline-flex items-center gap-2 rounded-2xl border-2 border-brand-600 px-8 py-4 text-base font-bold text-brand-600 hover:bg-brand-600 hover:text-white transition-all dark:text-brand-400 dark:hover:bg-brand-600 dark:hover:text-white">
           <Clock className="h-5 w-5" /> Track My Order
         </Link>
-        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">Have questions? Contact our support team for assistance.</p>
-        <h3 className="text-2xl text-slate-900 font-bold dark:text-slate-500">Contact: 024 836 5559</h3>
+      
       </section>
     </div>
   )
