@@ -46,27 +46,90 @@ export async function POST(req: Request) {
     } = body
 
     if (!clientName?.trim()) return NextResponse.json({ error: 'Client name is required' }, { status: 400 })
-    if (!unitPrice || Number(unitPrice) <= 0) return NextResponse.json({ error: 'Unit price is required' }, { status: 400 })
+    
+    const isV2 = sizes && typeof sizes === 'object' && (sizes as any)._version === 'v2' && Array.isArray((sizes as any).items)
+    if (!isV2 && (!unitPrice || Number(unitPrice) <= 0)) {
+      return NextResponse.json({ error: 'Unit price is required' }, { status: 400 })
+    }
 
-    const isPrinting = serviceCategory === 'PRINTING'
-    const isApparel  = isPrinting && (printingType === 'TSHIRT' || printingType === 'LACOSTE')
-    const totalQty    = isApparel
-      ? sumSizeQuantities(sizes)
-      : (isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1)
+    let totalQty = 0
+    let totalAmount = 0
+    let calculatedUnitPrice = Number(unitPrice || 0)
 
-    const totalAmount = parseFloat((totalQty * Number(unitPrice)).toFixed(2))
-    const balance     = parseFloat((totalAmount - Number(amountPaid)).toFixed(2))
+    if (isV2) {
+      const items = (sizes as any).items
+      totalQty = items.reduce((sum: number, it: any) => sum + Number(it.qty || 0), 0)
+      totalAmount = items.reduce((sum: number, it: any) => sum + (Number(it.qty || 0) * Number(it.unitPrice || 0)), 0)
+      if (items.length > 0) {
+        calculatedUnitPrice = Number(items[0].unitPrice || 0)
+      }
+    } else {
+      const isPrinting = serviceCategory === 'PRINTING'
+      const isApparel  = isPrinting && (printingType === 'TSHIRT' || printingType === 'LACOSTE')
+      totalQty    = isApparel
+        ? sumSizeQuantities(sizes)
+        : (isPrinting ? colors.reduce((s: number, c: { qty: number }) => s + Number(c.qty || 0), 0) : 1)
+      totalAmount = parseFloat((totalQty * calculatedUnitPrice).toFixed(2))
+    }
+
+    const balance = parseFloat((totalAmount - Number(amountPaid)).toFixed(2))
+
+    let dbColors: { name: string; qty: number }[] = []
+    if (isV2) {
+      const items = (sizes as any).items
+      const colorMap = new Map<string, number>()
+      for (const item of items) {
+        if (Array.isArray(item.colors)) {
+          for (const c of item.colors) {
+            const name = c.name?.trim()
+            if (name) {
+              const qty = Number(c.qty || 0)
+              const key = name.toLowerCase()
+              colorMap.set(key, (colorMap.get(key) || 0) + qty)
+            }
+          }
+        }
+      }
+      for (const [key, qty] of colorMap.entries()) {
+        let originalName = key
+        for (const item of items) {
+          if (Array.isArray(item.colors)) {
+            const found = item.colors.find((c: any) => c.name?.trim().toLowerCase() === key)
+            if (found) {
+              originalName = found.name.trim()
+              break
+            }
+          }
+        }
+        dbColors.push({ name: originalName, qty })
+      }
+    } else {
+      if (serviceCategory === 'PRINTING' && colors && colors.length > 0) {
+        dbColors = colors
+          .filter((c: { name: string; qty: number }) => c.name?.trim())
+          .map((c: { name: string; qty: number }) => ({ name: c.name.trim(), qty: Number(c.qty) }))
+      }
+    }
+
+    const firstItem = isV2 ? (sizes as any).items[0] : null
+    const finalServiceCategory = isV2 ? (firstItem?.category || serviceCategory) : serviceCategory
+    const finalPrintingType = isV2 ? (firstItem?.category === 'PRINTING' ? firstItem?.type : null) : printingType
+    const finalPrintingTypeOther = isV2 ? (firstItem?.category === 'PRINTING' ? firstItem?.typeOther : null) : printingTypeOther
+    const finalPhotographyType = isV2 ? (firstItem?.category === 'PHOTOGRAPHY' ? firstItem?.type : null) : photographyType
+    const finalPhotographyTypeOther = isV2 ? (firstItem?.category === 'PHOTOGRAPHY' ? firstItem?.typeOther : null) : photographyTypeOther
+    const finalDesignType = isV2 ? (firstItem?.category === 'DESIGN' ? firstItem?.type : null) : designType
+    const finalDesignTypeOther = isV2 ? (firstItem?.category === 'DESIGN' ? firstItem?.typeOther : null) : designTypeOther
 
     const order = await prisma.order.create({
       data: {
         receiptNumber: generateReceiptNumber(),
-        serviceCategory,
-        printingType:         printingType    ?? null,
-        printingTypeOther:    printingTypeOther   ?? null,
-        photographyType:      photographyType ?? null,
-        photographyTypeOther: photographyTypeOther ?? null,
-        designType:           designType      ?? null,
-        designTypeOther:      designTypeOther ?? null,
+        serviceCategory:      finalServiceCategory,
+        printingType:         finalPrintingType ?? null,
+        printingTypeOther:    finalPrintingTypeOther ?? null,
+        photographyType:      finalPhotographyType ?? null,
+        photographyTypeOther: finalPhotographyTypeOther ?? null,
+        designType:           finalDesignType ?? null,
+        designTypeOther:      finalDesignTypeOther ?? null,
         clientName: clientName.trim(),
         clientPhone: clientPhone?.trim() || null,
         clientEmail: clientEmail?.trim() || null,
@@ -75,16 +138,14 @@ export async function POST(req: Request) {
         dueDate:    dueDate ? new Date(dueDate) : null,
         status,
         notes: notes?.trim() || null,
-        unitPrice:   Number(unitPrice),
+        unitPrice:   calculatedUnitPrice,
         totalQty,
         totalAmount,
         amountPaid:  Number(amountPaid),
         balance,
-        sizes: isApparel ? (sizes || {}) : null,
-        colors: isPrinting && colors.length > 0 ? {
-          create: colors
-            .filter((c: { name: string; qty: number }) => c.name?.trim())
-            .map((c: { name: string; qty: number }) => ({ name: c.name.trim(), qty: Number(c.qty) })),
+        sizes: isV2 ? sizes : (serviceCategory === 'PRINTING' && (printingType === 'TSHIRT' || printingType === 'LACOSTE') ? (sizes || {}) : null),
+        colors: dbColors.length > 0 ? {
+          create: dbColors,
         } : undefined,
       },
       include: { colors: true, assignedTo: true },

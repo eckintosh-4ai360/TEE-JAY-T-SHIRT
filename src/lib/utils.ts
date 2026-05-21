@@ -36,7 +36,7 @@ export type SerializedOrder = {
   amountPaid: number
   balance: number
   colors: SerializedColor[]
-  sizes: Record<string, number> | null
+  sizes: any | null
 }
 
 export function serializeOrder(
@@ -74,7 +74,7 @@ export function serializeOrder(
       qty: c.qty,
       orderId: c.orderId,
     })),
-    sizes: (order.sizes as Record<string, number>) ?? null,
+    sizes: order.sizes ?? null,
   }
 }
 
@@ -118,35 +118,128 @@ export function generateReceiptNumber(): string {
 }
 
 // ── Service label helpers ──────────────────────────────────────────────────────
-export function getServiceLabel(order: SerializedOrder): string {
-  if (order.serviceCategory === 'PHOTOGRAPHY') {
-    if (!order.photographyType) return 'Photography'
-    if (order.photographyType === 'OTHER') return order.photographyTypeOther ?? 'Photography'
+export interface OrderColorItem {
+  name: string
+  qty: number
+}
+
+export interface UnifiedOrderItem {
+  category: string
+  type: string | null
+  typeOther: string | null
+  description: string | null
+  unitPrice: number
+  qty: number
+  sizes: any | null
+  colors: OrderColorItem[]
+}
+
+export function getOrderItems(order: SerializedOrder): UnifiedOrderItem[] {
+  if (order.sizes && typeof order.sizes === 'object' && (order.sizes as any)._version === 'v2') {
+    const rawItems = (order.sizes as any).items
+    if (Array.isArray(rawItems)) {
+      return rawItems.map((it: any) => ({
+        category: it.category,
+        type: it.type || null,
+        typeOther: it.typeOther || null,
+        description: it.description || null,
+        unitPrice: Number(it.unitPrice || 0),
+        qty: Number(it.qty || 0),
+        sizes: it.sizes || null,
+        colors: Array.isArray(it.colors) ? it.colors.map((c: any) => ({ name: c.name, qty: Number(c.qty || 0) })) : []
+      }))
+    }
+  }
+
+  // Fallback: parse single-item order
+  const isPrinting = order.serviceCategory === 'PRINTING'
+  
+  let itemColors: OrderColorItem[] = []
+  if (isPrinting) {
+    if (order.colors && order.colors.length > 0) {
+      itemColors = order.colors.map(c => ({ name: c.name, qty: c.qty }))
+    }
+  }
+
+  return [
+    {
+      category: order.serviceCategory,
+      type: order.printingType || order.photographyType || order.designType || null,
+      typeOther: order.printingTypeOther || order.photographyTypeOther || order.designTypeOther || null,
+      description: order.description,
+      unitPrice: order.unitPrice,
+      qty: order.totalQty,
+      sizes: order.sizes,
+      colors: itemColors
+    }
+  ]
+}
+
+export function getSingleServiceLabel(category: string, type: string | null, typeOther: string | null): string {
+  if (category === 'PHOTOGRAPHY') {
+    if (!type) return 'Photography'
+    if (type === 'OTHER') return typeOther ?? 'Photography'
     const labels: Record<string, string> = {
       WEDDING: 'Wedding Photography',
       BIRTHDAY: 'Birthday Photography',
       GRADUATION: 'Graduation Photography',
     }
-    return labels[order.photographyType] ?? 'Photography'
+    return labels[type] ?? 'Photography'
   }
-  if (order.serviceCategory === 'DESIGN') {
-    if (!order.designType) return 'Design'
-    if (order.designType === 'OTHER') return order.designTypeOther ?? 'Design'
+  if (category === 'DESIGN') {
+    if (!type) return 'Design'
+    if (type === 'OTHER') return typeOther ?? 'Design'
     const labels: Record<string, string> = {
       FLYER: 'Flyer Design',
       LOGO:  'Logo Design',
     }
-    return labels[order.designType] ?? 'Design'
+    return labels[type] ?? 'Design'
   }
   // PRINTING
-  if (!order.printingType) return 'Printing'
-  if (order.printingType === 'OTHER') return order.printingTypeOther ?? 'Printing'
+  if (!type) return 'Printing'
+  if (type === 'OTHER') return typeOther ?? 'Printing'
   const labels: Record<string, string> = {
     TSHIRT:  'T-Shirt Printing',
     LACOSTE: 'Lacoste Printing',
     POSTER:  'Poster Printing',
   }
-  return labels[order.printingType] ?? 'Printing'
+  return labels[type] ?? 'Printing'
+}
+
+export function getServiceLabel(order: SerializedOrder): string {
+  const items = getOrderItems(order)
+  if (items.length === 0) return 'No service'
+  if (items.length === 1) {
+    const item = items[0]
+    return getSingleServiceLabel(item.category, item.type, item.typeOther)
+  }
+
+  // Multiple items
+  const categories = Array.from(new Set(items.map(it => it.category)))
+  if (categories.length > 1) {
+    return categories.map(c => c.charAt(0) + c.slice(1).toLowerCase()).join(' & ')
+  }
+
+  // Same category, list types
+  const types = items.map(it => {
+    if (it.category === 'PRINTING') {
+      const labels: Record<string, string> = { TSHIRT: 'T-Shirt', LACOSTE: 'Lacoste', POSTER: 'Poster' }
+      return it.type === 'OTHER' ? (it.typeOther || 'Printing') : (labels[it.type || ''] || 'Printing')
+    }
+    if (it.category === 'PHOTOGRAPHY') {
+      const labels: Record<string, string> = { WEDDING: 'Wedding', BIRTHDAY: 'Birthday', GRADUATION: 'Graduation' }
+      return it.type === 'OTHER' ? (it.typeOther || 'Photography') : (labels[it.type || ''] || 'Photography')
+    }
+    if (it.category === 'DESIGN') {
+      const labels: Record<string, string> = { FLYER: 'Flyer', LOGO: 'Logo' }
+      return it.type === 'OTHER' ? (it.typeOther || 'Design') : (labels[it.type || ''] || 'Design')
+    }
+    return 'Service'
+  })
+
+  const uniqueTypes = Array.from(new Set(types))
+  const catLabel = categories[0].charAt(0) + categories[0].slice(1).toLowerCase()
+  return uniqueTypes.join(' & ') + ` (${catLabel})`
 }
 
 export function getStatusLabel(order: SerializedOrder): string {

@@ -119,14 +119,14 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
               }
 
               // Fallback to legacy flat layout
-              const sizeKeys = Object.keys(order.sizes).filter(k => k !== '_items')
+              const sizeKeys = Object.keys(order.sizes).filter(k => k !== '_items' && k !== '_version' && k !== 'items' && k !== 'ITEMS');
               if (sizeKeys.length > 0) {
                 return (
                   <div>
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Apparel Size Breakdown</p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {sizeKeys.map((size) => {
-                        const qty = Number((order.sizes as any)[size] || 0)
+                        const qty = Number(((order.sizes as any)[size]?.qty ?? (order.sizes as any)[size])) || 0;
                         return (
                           <div key={size} className="rounded-xl border border-slate-100 dark:border-white/10 p-3 bg-slate-50 dark:bg-white/5 text-center">
                             <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{size}</span>
@@ -134,7 +134,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                             <span className="block text-[10px] text-slate-400">{fmtM(order.unitPrice)} ea</span>
                             <span className="block text-xs font-bold text-slate-900 dark:text-white mt-1.5">{fmtM(qty * order.unitPrice)}</span>
                           </div>
-                        )
+                        );
                       })}
                     </div>
                   </div>
