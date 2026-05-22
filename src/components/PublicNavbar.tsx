@@ -21,7 +21,7 @@ export default function PublicNavbar() {
   const dashHref = session?.user?.role === 'ADMIN' ? '/admin' : session?.user?.role === 'WORKER' ? '/worker' : '/login'
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl dark:border-zinc-800 dark:bg-black/60">
+    <header className="sticky top-0 z-50 border-b border-slate-200/60 bg-white/80 backdrop-blur-xl print:hidden dark:border-zinc-800 dark:bg-black/60">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
 
 

@@ -38,7 +38,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
         <PageBackground />
       </div>
 
-      <div data-receipt-print className="relative overflow-hidden px-4 py-8 dark:bg-zinc-950/40 sm:px-6">
+      <div data-receipt-print className="relative overflow-hidden bg-white px-4 py-8 dark:bg-zinc-950/40 sm:px-6">
         {/* Background Ambient Glows */}
         {/* <div className="absolute inset-0 pointer-events-none -z-10">
           <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-red-600/10 blur-[100px] dark:bg-red-600/25" />
@@ -68,7 +68,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 space-y-6">
+            <div className="receipt-paper bg-white p-6 space-y-6 dark:bg-slate-900 sm:p-8">
               {/* Status */}
               <div className="flex items-center justify-between">
                 <div>
