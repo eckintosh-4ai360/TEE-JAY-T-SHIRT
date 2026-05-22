@@ -47,16 +47,19 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
           {/* Header */}
           <div className="rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-lg">
-            <div className="bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 p-6 sm:p-8 flex justify-between items-start text-white">
-              <div>
+            <div className="bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 p-6 sm:p-8 flex flex-col gap-4 text-white sm:flex-row sm:justify-between sm:items-start">
+              <div className="max-w-xl">
                 <div className="flex items-center gap-2 mb-1">
                   {isPrinting ? <Printer className="h-5 w-5" /> : isDesign ? <Palette className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
                   <span className="text-sm font-black tracking-wider">TEE-JAY MULTIMEDIA</span>
                 </div>
                 <p className="text-[10px] uppercase tracking-widest opacity-80">Printing & Photography Services</p>
-                
+                <div className="mt-3 space-y-1 text-[11px] leading-relaxed text-white/90">
+                  <p>Contact: 024 836 5559 / 053 968 360 / 025 790 3397</p>
+                  <p>Locate us: Central Region - Mumford</p>
+                </div>
               </div>
-              <div className="text-right">
+              <div className="text-left sm:text-right">
                 <p className="text-xs font-bold opacity-75 uppercase tracking-widest">Receipt</p>
                 <p className="text-lg font-black font-mono">{order.receiptNumber}</p>
                 <p className="text-xs opacity-75">{fmtDate(order.createdAt)}</p>

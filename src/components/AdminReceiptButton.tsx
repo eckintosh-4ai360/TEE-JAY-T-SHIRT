@@ -118,6 +118,7 @@ body{font-family:'Inter',Arial,sans-serif;font-size:13px;color:#0f172a;backgroun
 .header{background:linear-gradient(135deg,#14b8a6 0%,#0891b2 100%);color:#fff;padding:28px 32px 24px;display:flex;justify-content:space-between;align-items:flex-start}
 .brand-name{font-size:26px;font-weight:800;letter-spacing:-0.5px}
 .brand-tag{font-size:11px;opacity:.85;margin-top:4px}
+.brand-meta{font-size:11px;line-height:1.55;opacity:.92;margin-top:12px;max-width:360px}
 .rec-label{text-align:right}
 .rec-word{font-size:20px;font-weight:800;letter-spacing:2px}
 .rec-ref{font-size:11px;opacity:.85;margin-top:4px}
@@ -154,7 +155,14 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 </style></head><body>
 <div class="page">
 <div class="header">
-  <div><div class="brand-name">TEE-JAY MULTIMEDIA</div><div class="brand-tag">PRINTING &amp; PHOTOGRAPHY SERVICES</div></div>
+  <div>
+    <div class="brand-name">TEE-JAY MULTIMEDIA</div>
+    <div class="brand-tag">PRINTING &amp; PHOTOGRAPHY SERVICES</div>
+    <div class="brand-meta">
+      <div>Contact: 024 836 5559 / 053 968 360 / 025 790 3397</div>
+      <div>Locate us: Central Region - Mumford</div>
+    </div>
+  </div>
   <div class="rec-label"><div class="rec-word">RECEIPT</div><div class="rec-ref">#${order.receiptNumber}</div><div class="rec-ref">Date: ${fmtD(order.createdAt)}</div></div>
 </div>
 <div class="body">
