@@ -60,6 +60,75 @@
   .dark body::after {
     background: radial-gradient(circle, rgba(234, 179, 8, 0.08) 0%, transparent 70%);
   }
+
+  @media print {
+    html,
+    body {
+      background: #fff !important;
+    }
+
+    body {
+      background-image: none !important;
+    }
+
+    body::before,
+    body::after {
+      display: none !important;
+    }
+
+    [data-receipt-print],
+    [data-receipt-print] * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      forced-color-adjust: none !important;
+    }
+
+    [data-receipt-print] .receipt-page-card {
+      border-color: #cbd5e1 !important;
+      box-shadow: none !important;
+    }
+
+    [data-receipt-print] .receipt-gradient-header {
+      color: #fff !important;
+      background-color: #991b1b !important;
+      background-image: linear-gradient(to right, #b91c1c, #991b1b, #eab308) !important;
+    }
+
+    [data-receipt-print] .receipt-panel {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    [data-receipt-print] .receipt-table thead {
+      color: #fff !important;
+      background-color: #18181b !important;
+    }
+
+    [data-receipt-print] .receipt-table tbody tr:nth-child(odd) {
+      background-color: #fff !important;
+    }
+
+    [data-receipt-print] .receipt-table tbody tr:nth-child(even) {
+      background-color: #f8fafc !important;
+    }
+
+    [data-receipt-print] .receipt-summary-accent {
+      background-color: #f8fafc !important;
+    }
+
+    [data-receipt-print] .receipt-photography {
+      border-color: #d8b4fe !important;
+      background-color: #faf5ff !important;
+      background-image: linear-gradient(135deg, #faf5ff, #fdf2f8) !important;
+    }
+
+    [data-receipt-print] .receipt-thanks {
+      border-color: #f59e0b !important;
+      background-color: #fff7ed !important;
+      background-image: linear-gradient(135deg, #fef2f2, #fef9c3) !important;
+    }
+  }
 }
 
 @layer components {

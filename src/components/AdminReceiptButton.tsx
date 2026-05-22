@@ -113,9 +113,11 @@ export default function AdminReceiptButton({ order }: { order: SerializedOrder }
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',Arial,sans-serif;font-size:13px;color:#0f172a;background:#fff}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;forced-color-adjust:none}
+body{font-family:'Inter',Arial,sans-serif;font-size:13px;color:#0f172a;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;forced-color-adjust:none}
 .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff}
-.header{background:linear-gradient(135deg,#14b8a6 0%,#0891b2 100%);color:#fff;padding:28px 32px 24px;display:flex;justify-content:space-between;align-items:flex-start}
+.page,.page *{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;forced-color-adjust:none}
+.header{background-color:#0f766e;background-image:linear-gradient(135deg,#14b8a6 0%,#0891b2 100%);color:#fff;padding:28px 32px 24px;display:flex;justify-content:space-between;align-items:flex-start}
 .brand-name{font-size:26px;font-weight:800;letter-spacing:-0.5px}
 .brand-tag{font-size:11px;opacity:.85;margin-top:4px}
 .brand-meta{font-size:11px;line-height:1.55;opacity:.92;margin-top:12px;max-width:360px}
@@ -124,7 +126,7 @@ body{font-family:'Inter',Arial,sans-serif;font-size:13px;color:#0f172a;backgroun
 .rec-ref{font-size:11px;opacity:.85;margin-top:4px}
 .body{padding:28px 32px}
 .info-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-.info-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px}
+.info-box{background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px}
 .info-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#14b8a6;margin-bottom:10px}
 .info-r{display:flex;justify-content:space-between;margin-top:5px}
 .info-k{color:#64748b;font-size:12px}.info-v{font-weight:600;font-size:12px;color:#0f172a}
@@ -132,26 +134,26 @@ body{font-family:'Inter',Arial,sans-serif;font-size:13px;color:#0f172a;backgroun
 .cli-sub{font-size:12px;color:#64748b;margin-top:3px}
 .sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:10px}
 table{width:100%;border-collapse:collapse;margin-bottom:24px}
-thead tr{background:#14b8a6;color:#fff}
+thead tr{background-color:#14b8a6;color:#fff}
 thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase}
 thead th.num{text-align:right}
-tbody tr:nth-child(even){background:#f8fafc}
+tbody tr:nth-child(even){background-color:#f8fafc}
 tbody td{padding:9px 12px;font-size:12.5px;border-bottom:1px solid #e2e8f0}
-tfoot tr{background:#f1f5f9;font-weight:700}
+tfoot tr{background-color:#f1f5f9;font-weight:700}
 tfoot td{padding:10px 12px;font-size:13px;border-top:2px solid #cbd5e1}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .pay-wrap{display:flex;justify-content:flex-end;margin-bottom:28px}
 .pay-box{width:220px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden}
 .pay-row{display:flex;justify-content:space-between;padding:9px 14px;font-size:12.5px;border-bottom:1px solid #e2e8f0}
 .pay-row:last-child{border-bottom:none}
-.pay-row.total{font-weight:700;font-size:14px;background:#f8fafc}
+.pay-row.total{font-weight:700;font-size:14px;background-color:#f8fafc}
 .pay-k{color:#64748b}.pay-v{font-variant-numeric:tabular-nums}
 .paid{color:#10b981}.owed{color:#ef4444}.settled{color:#10b981}
-.ty{background:linear-gradient(135deg,#f0fdfa 0%,#ecfeff 100%);border:1px solid #99f6e4;border-radius:10px;text-align:center;padding:18px;margin-bottom:20px}
+.ty{background-color:#ecfeff;background-image:linear-gradient(135deg,#f0fdfa 0%,#ecfeff 100%);border:1px solid #99f6e4;border-radius:10px;text-align:center;padding:18px;margin-bottom:20px}
 .ty-main{font-size:15px;font-weight:700;color:#0f766e}
 .ty-sub{font-size:11.5px;color:#64748b;margin-top:4px}
 .footer{text-align:center;color:#94a3b8;font-size:10px;padding-top:16px;border-top:1px solid #e2e8f0}
-@media print{@page{size:A4;margin:0}body{padding:0}.page{width:210mm;min-height:297mm}.no-print{display:none!important}}
+@media print{@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff}.page{width:210mm;min-height:297mm}.no-print{display:none!important}}
 </style></head><body>
 <div class="page">
 <div class="header">

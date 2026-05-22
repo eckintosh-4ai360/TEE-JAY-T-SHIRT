@@ -34,9 +34,11 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
 
   return (
     <>
-      <PageBackground />
+      <div className="print:hidden">
+        <PageBackground />
+      </div>
 
-      <div className="relative py-8 px-4 sm:px-6   dark:bg-zinc-950/40 overflow-hidden">
+      <div data-receipt-print className="relative overflow-hidden px-4 py-8 dark:bg-zinc-950/40 sm:px-6">
         {/* Background Ambient Glows */}
         {/* <div className="absolute inset-0 pointer-events-none -z-10">
           <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] bg-red-600/10 blur-[100px] dark:bg-red-600/25" />
@@ -46,8 +48,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
 
         <div className="max-w-2xl mx-auto space-y-6 relative z-10">
           {/* Header */}
-          <div className="rounded-3xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-lg">
-            <div className="bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 p-6 sm:p-8 flex flex-col gap-4 text-white sm:flex-row sm:justify-between sm:items-start">
+          <div className="receipt-page-card overflow-hidden rounded-3xl border border-slate-200 shadow-lg dark:border-white/10">
+            <div className="receipt-gradient-header flex flex-col gap-4 bg-gradient-to-r from-brand-600 via-brand-700 to-yellow-500 p-6 text-white sm:flex-row sm:items-start sm:justify-between sm:p-8">
               <div className="max-w-xl">
                 <div className="flex items-center gap-2 mb-1">
                   {isPrinting ? <Printer className="h-5 w-5" /> : isDesign ? <Palette className="h-5 w-5" /> : <Camera className="h-5 w-5" />}
@@ -85,13 +87,13 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
 
               {/* Client info */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4">
+                <div className="receipt-panel rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
                   <p className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">Bill To</p>
                   <p className="font-bold text-slate-900 dark:text-white">{order.clientName}</p>
                   {order.clientPhone && <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{order.clientPhone}</p>}
                   {order.clientEmail && <p className="text-sm text-slate-500 dark:text-slate-400">{order.clientEmail}</p>}
                 </div>
-                <div className="rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4">
+                <div className="receipt-panel rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
                   <p className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">Order Details</p>
                   {order.description && <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">{order.description}</p>}
                   {order.dueDate && <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Due: {fmtDate(order.dueDate)}</p>}
@@ -110,8 +112,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                       <div>
                         <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Apparel Breakdown</p>
                         <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-white/10">
-                          <table className="w-full text-sm">
-                            <thead className="bg-zinc-900 dark:bg-zinc-950 text-white text-xs">
+                          <table className="receipt-table w-full text-sm">
+                            <thead className="bg-zinc-900 text-xs text-white dark:bg-zinc-950">
                               <tr>
                                 <th className="py-2.5 pl-4 pr-3 text-left">Colour</th>
                                 <th className="py-2.5 px-3 text-center">Size</th>
@@ -147,7 +149,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                           {sizeKeys.map((size) => {
                             const qty = Number(((order.sizes as any)[size]?.qty ?? (order.sizes as any)[size])) || 0;
                             return (
-                              <div key={size} className="rounded-xl border border-slate-100 dark:border-white/10 p-3 bg-slate-50 dark:bg-white/5 text-center">
+                              <div key={size} className="receipt-panel rounded-xl border border-slate-100 bg-slate-50 p-3 text-center dark:border-white/10 dark:bg-white/5">
                                 <span className="block text-xs font-bold text-slate-400 dark:text-slate-500 uppercase">{size}</span>
                                 <span className="block text-lg font-black text-slate-900 dark:text-white mt-0.5 tabular-nums">{qty}</span>
                                 <span className="block text-[10px] text-slate-400">{fmtM(order.unitPrice)} ea</span>
@@ -184,7 +186,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                   <div>
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Breakdown</p>
                     <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/10">
-                      <table className="w-full text-sm">
+                      <table className="receipt-table w-full text-sm">
                         <thead className="bg-zinc-900 text-white dark:bg-zinc-950">
                           <tr>
                             <th className="py-2.5 pl-4 pr-3 text-left font-semibold text-xs">Colour</th>
@@ -220,7 +222,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                     <span className="text-slate-500">Paid</span>
                     <span className="tabular-nums font-bold text-yellow-600 dark:text-yellow-500">{fmtM(order.amountPaid)}</span>
                   </div>
-                  <div className="flex justify-between px-4 py-3 bg-slate-50 dark:bg-white/5 font-bold font-mono">
+                  <div className="receipt-summary-accent flex justify-between bg-slate-50 px-4 py-3 font-mono font-bold dark:bg-white/5">
                     <span>Balance</span>
                     <span className={`tabular-nums ${order.balance > 0 ? 'text-red-600' : 'text-yellow-600 dark:text-yellow-500'}`}>{fmtM(order.balance)}</span>
                   </div>
@@ -230,7 +232,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
 
               {/* Photography Guides */}
               {order.serviceCategory === 'PHOTOGRAPHY' && (
-                <div className="rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 p-6 dark:border-purple-500/20 dark:from-purple-950/20 dark:to-pink-950/10 space-y-4">
+                <div className="receipt-photography space-y-4 rounded-2xl border border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 p-6 dark:border-purple-500/20 dark:from-purple-950/20 dark:to-pink-950/10">
                   <div>
                     <h3 className="text-sm font-black text-purple-900 dark:text-purple-300 uppercase tracking-widest flex items-center gap-2">
                       <Camera className="h-4 w-4 text-purple-500 shrink-0" />
@@ -260,7 +262,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
               )}
 
               {/* Thank you */}
-              <div className="rounded-2xl bg-gradient-to-br from-brand-50/5 to-yellow-50/5 dark:from-brand-500/5 dark:to-yellow-500/5 border border-brand-500/10 dark:border-brand-500/20 p-5 text-center">
+              <div className="receipt-thanks rounded-2xl border border-brand-500/10 bg-gradient-to-br from-brand-50/5 to-yellow-50/5 p-5 text-center dark:border-brand-500/20 dark:from-brand-500/5 dark:to-yellow-500/5">
                 <p className="font-extrabold text-brand-600 dark:text-yellow-400">Thank you for choosing Tee-Jay Multimedia!</p>
                 <p className="font-bold italic text-slate-700 dark:text-slate-300">We serve you at ease</p>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Keep this receipt number for your records: <span className="font-mono font-black text-brand-600 dark:text-yellow-400">{order.receiptNumber}</span></p>
