@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, Loader2 } from 'lucide-react'
+import PageBackground from '@/components/PageBackground'
 
 export default function TrackPage() {
   const router = useRouter()
@@ -27,7 +28,11 @@ export default function TrackPage() {
   }
 
   return (
+
+      
+
     <div className="max-w-lg mx-auto py-16 space-y-8">
+       <PageBackground />
       <div className="text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-100 text-brand-600 mx-auto mb-4 dark:bg-brand-500/20 dark:text-brand-400">
           <Search className="h-8 w-8" />

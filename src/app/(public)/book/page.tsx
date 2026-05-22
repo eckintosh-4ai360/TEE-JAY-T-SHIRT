@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import BookingForm from '@/components/BookingForm'
+import PageBackground from '@/components/PageBackground'
 
 export const metadata = {
   title: 'Book a Service — Tee-Jay Multimedia',
@@ -8,8 +9,11 @@ export const metadata = {
 
 export default function BookPage() {
   return (
-    <Suspense>
-      <BookingForm />
-    </Suspense>
+    <>
+      <PageBackground />
+      <Suspense>
+        <BookingForm />
+      </Suspense>
+    </>
   )
 }
