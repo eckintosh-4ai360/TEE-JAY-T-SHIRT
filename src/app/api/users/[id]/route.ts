@@ -11,7 +11,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const body = await req.json()
   const user = await prisma.user.update({
     where: { id },
-    data: { isActive: body.isActive, phone: body.phone, name: body.name },
+    data: {
+      ...(body.isActive  !== undefined && { isActive: body.isActive }),
+      ...(body.name      !== undefined && { name: body.name }),
+      ...(body.phone     !== undefined && { phone: body.phone }),
+      ...(body.role      !== undefined && { role: body.role }),
+    },
     select: { id: true, name: true, email: true, isActive: true },
   })
   return NextResponse.json(user)
