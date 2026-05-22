@@ -133,6 +133,15 @@ export interface OrderSMSContext {
   status?: string
 }
 
+export interface WorkerAssignmentSMSContext {
+  workerName: string
+  clientName: string
+  receiptNumber: string
+  serviceLabel: string
+  dueDate: string
+  description?: string
+}
+
 /** Sent right after a client books an order */
 export function buildOrderConfirmationSMS(ctx: OrderSMSContext): string {
   return (
@@ -156,4 +165,20 @@ export function buildStatusUpdateSMS(ctx: OrderSMSContext): string {
     `Receipt: ${getReceiptUrl(ctx.receiptNumber)}\n` +
     `Tee-Jay Multimedia`
   )
+}
+
+/** Sent to a worker when admin assigns them to an order */
+export function buildWorkerAssignmentSMS(ctx: WorkerAssignmentSMSContext): string {
+  const lines = [
+    `Hi ${ctx.workerName}, you have been assigned a new job!`,
+    `Client: ${ctx.clientName}`,
+    `Service: ${ctx.serviceLabel}`,
+    `Due: ${ctx.dueDate}`,
+  ]
+  if (ctx.description) lines.push(`Details: ${ctx.description}`)
+  lines.push(
+    `Order Receipt: ${getReceiptUrl(ctx.receiptNumber)}`,
+    `Tee-Jay Multimedia`,
+  )
+  return lines.join('\n')
 }

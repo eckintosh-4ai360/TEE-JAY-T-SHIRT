@@ -16,14 +16,10 @@
     @apply bg-slate-50 text-slate-900 min-h-screen transition-colors duration-300 dark:bg-[#000000] dark:text-slate-100 selection:bg-yellow-500 selection:text-black;
     background-image: radial-gradient(circle at center, rgba(0,0,0,0.02) 1px, transparent 1px);
     background-size: 24px 24px;
-  }
-
-  .dark body {
-    background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
     position: relative;
   }
 
-  .dark body::before {
+  body::before {
     content: "";
     position: fixed;
     top: -20%;
@@ -31,13 +27,14 @@
     width: 60%;
     height: 60%;
     border-radius: 9999px;
-    background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.04) 0%, transparent 70%);
     filter: blur(80px);
     pointer-events: none;
     z-index: -10;
+    transition: background 0.3s ease;
   }
 
-  .dark body::after {
+  body::after {
     content: "";
     position: fixed;
     bottom: -20%;
@@ -45,10 +42,23 @@
     width: 60%;
     height: 60%;
     border-radius: 9999px;
-    background: radial-gradient(circle, rgba(234, 179, 8, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(234, 179, 8, 0.03) 0%, transparent 70%);
     filter: blur(80px);
     pointer-events: none;
     z-index: -10;
+    transition: background 0.3s ease;
+  }
+
+  .dark body {
+    background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px);
+  }
+
+  .dark body::before {
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.15) 0%, transparent 70%);
+  }
+
+  .dark body::after {
+    background: radial-gradient(circle, rgba(234, 179, 8, 0.08) 0%, transparent 70%);
   }
 }
 

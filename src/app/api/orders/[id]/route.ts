@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel, sumSizeQuantities } from '@/lib/utils'
-import { sendSMS, buildStatusUpdateSMS } from '@/lib/sms'
+import { sendSMS, buildStatusUpdateSMS, buildWorkerAssignmentSMS } from '@/lib/sms'
 import { STATUS_META, type OrderStatus } from '@/types'
 
 // ── GET /api/orders/[id] ──────────────────────────────────────────────────────
@@ -175,6 +175,28 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       }
     })
 
+    // ── Notify newly assigned worker via SMS ─────────────────────────────────
+    if (oldOrder.assignedToId !== order.assignedToId && order.assignedTo?.phone) {
+      const workerMsg = buildWorkerAssignmentSMS({
+        workerName:    order.assignedTo.name ?? 'Worker',
+        clientName:    serializeOrder(order).clientName,
+        receiptNumber: order.receiptNumber,
+        serviceLabel:  getServiceLabel(serializeOrder(order)),
+        dueDate:       order.dueDate ? fmtDate(order.dueDate.toISOString()) : 'TBD',
+        description:   order.description ?? undefined,
+      })
+      after(async () => {
+        const result = await sendSMS([order.assignedTo!.phone!], workerMsg)
+        if (!result.ok) {
+          console.error('[SMS] Worker assignment SMS failed (PUT)', {
+            orderId: order.id,
+            workerPhone: order.assignedTo?.phone,
+            error: result.error,
+          })
+        }
+      })
+    }
+
     return NextResponse.json(serializeOrder(order))
   } catch (err) {
     console.error('PUT /api/orders/[id]', err)
@@ -283,6 +305,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   })
 
   const serialized = serializeOrder(updated)
+
+  // ── Notify newly assigned worker via SMS (admin PATCH) ────────────────────
+  if (body.assignedToId !== undefined && body.assignedToId !== prevOrder?.assignedToId && updated.assignedTo?.phone) {
+    const workerMsg = buildWorkerAssignmentSMS({
+      workerName:    updated.assignedTo.name ?? 'Worker',
+      clientName:    serialized.clientName,
+      receiptNumber: serialized.receiptNumber,
+      serviceLabel:  getServiceLabel(serialized),
+      dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
+      description:   updated.description ?? undefined,
+    })
+    after(async () => {
+      const result = await sendSMS([updated.assignedTo!.phone!], workerMsg)
+      if (!result.ok) {
+        console.error('[SMS] Worker assignment SMS failed (PATCH)', {
+          orderId: updated.id,
+          workerPhone: updated.assignedTo?.phone,
+          error: result.error,
+        })
+      }
+    })
+  }
   // ── Notify client via SMS on status change (admin path) ───────────────
   if (updated.clientPhone && body.status && body.status !== prevOrder?.status) {
     const statusLabel = STATUS_META[body.status as OrderStatus]?.label ?? body.status

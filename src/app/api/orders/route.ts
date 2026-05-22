@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { serializeOrder, generateReceiptNumber, fmtCurrency, fmtDate, getServiceLabel, sumSizeQuantities } from '@/lib/utils'
-import { sendSMS, buildOrderConfirmationSMS } from '@/lib/sms'
+import { sendSMS, buildOrderConfirmationSMS, buildWorkerAssignmentSMS } from '@/lib/sms'
 import type { Prisma } from '@prisma/client'
 
 // ── GET /api/orders ────────────────────────────────────────────────────────────
@@ -190,6 +190,28 @@ export async function POST(req: Request) {
             clientPhone: order.clientPhone,
             error: result.error,
             raw: result.raw,
+          })
+        }
+      })
+    }
+
+    // ── Fire-and-forget SMS assignment to worker ────────────────────────────
+    if (order.assignedTo?.phone) {
+      const workerMsg = buildWorkerAssignmentSMS({
+        workerName:    order.assignedTo.name ?? 'Worker',
+        clientName:    serialized.clientName,
+        receiptNumber: serialized.receiptNumber,
+        serviceLabel:  getServiceLabel(serialized),
+        dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
+        description:   order.description ?? undefined,
+      })
+      after(async () => {
+        const result = await sendSMS([order.assignedTo!.phone!], workerMsg)
+        if (!result.ok) {
+          console.error('[SMS] Worker assignment SMS failed (POST)', {
+            orderId: order.id,
+            workerPhone: order.assignedTo?.phone,
+            error: result.error,
           })
         }
       })
