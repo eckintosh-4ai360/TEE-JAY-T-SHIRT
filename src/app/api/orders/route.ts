@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   const orders = await prisma.order.findMany({
     where,
     orderBy: { createdAt: 'desc' },
-    include: { colors: true, assignedTo: true },
+    include: { colors: true, assignedTo: true, createdBy: true },
   })
   return NextResponse.json(orders.map(serializeOrder))
 }
@@ -31,6 +31,7 @@ export async function GET(req: Request) {
 // ── POST /api/orders ───────────────────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions)
     const body = await req.json()
     const {
       serviceCategory = 'PRINTING',
@@ -120,6 +121,9 @@ export async function POST(req: Request) {
     const finalDesignType = isV2 ? (firstItem?.category === 'DESIGN' ? firstItem?.type : null) : designType
     const finalDesignTypeOther = isV2 ? (firstItem?.category === 'DESIGN' ? firstItem?.typeOther : null) : designTypeOther
 
+    const finalCreatedById = session?.user?.id || null
+    const finalAssignedToId = (session?.user?.role === 'ADMIN' ? assignedToId : null) || null
+
     const order = await prisma.order.create({
       data: {
         receiptNumber: generateReceiptNumber(),
@@ -133,7 +137,8 @@ export async function POST(req: Request) {
         clientName: clientName.trim(),
         clientPhone: clientPhone?.trim() || null,
         clientEmail: clientEmail?.trim() || null,
-        assignedToId: assignedToId || null,
+        assignedToId: finalAssignedToId,
+        createdById: finalCreatedById,
         description: description?.trim() || null,
         dueDate:    dueDate ? new Date(dueDate) : null,
         status,
@@ -148,7 +153,19 @@ export async function POST(req: Request) {
           create: dbColors,
         } : undefined,
       },
-      include: { colors: true, assignedTo: true },
+      include: { colors: true, assignedTo: true, createdBy: true },
+    })
+
+    // Create Activity Log
+    await prisma.orderLog.create({
+      data: {
+        orderId: order.id,
+        userId: finalCreatedById,
+        action: 'CREATE',
+        details: session?.user
+          ? `Order created by ${session.user.name} (${session.user.role})`
+          : 'Order created via Online Booking',
+      },
     })
 
     const serialized = serializeOrder(order)

@@ -14,7 +14,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ id: string
 
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { colors: true, assignedTo: true },
+    include: { colors: true, assignedTo: true, createdBy: true },
   })
   if (!order) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (session.user?.role === 'WORKER' && order.assignedToId !== session.user.id)
@@ -114,6 +114,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const finalDesignType = isV2 ? (firstItem?.category === 'DESIGN' ? firstItem?.type : null) : designType
     const finalDesignTypeOther = isV2 ? (firstItem?.category === 'DESIGN' ? firstItem?.typeOther : null) : designTypeOther
 
+    const oldOrder = await prisma.order.findUnique({ where: { id }, include: { assignedTo: true } })
+    if (!oldOrder) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
     const order = await prisma.order.update({
       where: { id },
       data: {
@@ -142,8 +145,36 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           create: dbColors,
         } : undefined,
       },
-      include: { colors: true, assignedTo: true },
+      include: { colors: true, assignedTo: true, createdBy: true },
     })
+
+    const changes: string[] = []
+    if (oldOrder.status !== order.status) changes.push(`Status changed from ${oldOrder.status} to ${order.status}`)
+    if (oldOrder.assignedToId !== order.assignedToId) {
+      const oldName = oldOrder.assignedTo?.name || 'Unassigned'
+      const newName = order.assignedTo?.name || 'Unassigned'
+      changes.push(`Assignment changed from ${oldName} to ${newName}`)
+    }
+    if (Number(oldOrder.amountPaid) !== Number(order.amountPaid)) {
+      changes.push(`Amount paid updated from ${fmtCurrency(Number(oldOrder.amountPaid))} to ${fmtCurrency(Number(order.amountPaid))}`)
+    }
+    if (Number(oldOrder.totalAmount) !== Number(order.totalAmount)) {
+      changes.push(`Total amount updated from ${fmtCurrency(Number(oldOrder.totalAmount))} to ${fmtCurrency(Number(order.totalAmount))}`)
+    }
+    if (oldOrder.dueDate?.toISOString() !== order.dueDate?.toISOString()) {
+      changes.push(`Due date updated to ${fmtDate(order.dueDate?.toISOString())}`)
+    }
+    if (changes.length === 0) changes.push('Order details updated')
+
+    await prisma.orderLog.create({
+      data: {
+        orderId: order.id,
+        userId: session.user.id,
+        action: 'UPDATE',
+        details: `Order updated by ${session.user.name}: ${changes.join(', ')}`,
+      }
+    })
+
     return NextResponse.json(serializeOrder(order))
   } catch (err) {
     console.error('PUT /api/orders/[id]', err)
@@ -167,8 +198,23 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const updated = await prisma.order.update({
       where: { id },
       data: { status: body.status, notes: body.notes },
-      include: { colors: true, assignedTo: true },
+      include: { colors: true, assignedTo: true, createdBy: true },
     })
+
+    const changes: string[] = []
+    if (body.status && body.status !== order.status) changes.push(`Status updated from ${order.status} to ${body.status}`)
+    if (body.notes && body.notes !== order.notes) changes.push(`Progress notes added: "${body.notes}"`)
+    if (changes.length === 0) changes.push('Order progress updated')
+
+    await prisma.orderLog.create({
+      data: {
+        orderId: id,
+        userId: session.user.id,
+        action: 'UPDATE_PROGRESS',
+        details: `Worker ${session.user.name} updated order: ${changes.join(', ')}`,
+      }
+    })
+
     const serialized = serializeOrder(updated)
     // ── Notify client via SMS on status change ────────────────────────────
     if (updated.clientPhone && body.status && body.status !== order.status) {
@@ -200,12 +246,42 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   // Admin can patch anything
-  const prevOrder = await prisma.order.findUnique({ where: { id } })
+  const prevOrder = await prisma.order.findUnique({ where: { id }, include: { assignedTo: true } })
+  if (!prevOrder) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
   const updated = await prisma.order.update({
     where: { id },
     data: body,
-    include: { colors: true, assignedTo: true },
+    include: { colors: true, assignedTo: true, createdBy: true },
   })
+
+  const changes: string[] = []
+  if (body.status && body.status !== prevOrder?.status) changes.push(`Status changed from ${prevOrder.status} to ${body.status}`)
+  if (body.assignedToId !== undefined && body.assignedToId !== prevOrder?.assignedToId) {
+    const oldName = prevOrder?.assignedTo?.name || 'Unassigned'
+    const newName = updated.assignedTo?.name || 'Unassigned'
+    changes.push(`Assignment changed from ${oldName} to ${newName}`)
+  }
+  if (body.amountPaid !== undefined && Number(body.amountPaid) !== Number(prevOrder?.amountPaid)) {
+    changes.push(`Amount paid updated from ${fmtCurrency(Number(prevOrder?.amountPaid))} to ${fmtCurrency(Number(updated.amountPaid))}`)
+  }
+  if (body.totalAmount !== undefined && Number(body.totalAmount) !== Number(prevOrder?.totalAmount)) {
+    changes.push(`Total amount updated from ${fmtCurrency(Number(prevOrder?.totalAmount))} to ${fmtCurrency(Number(updated.totalAmount))}`)
+  }
+  if (body.dueDate && new Date(body.dueDate).toISOString() !== prevOrder?.dueDate?.toISOString()) {
+    changes.push(`Due date updated to ${fmtDate(updated.dueDate?.toISOString())}`)
+  }
+  if (changes.length === 0) changes.push('Order updated')
+
+  await prisma.orderLog.create({
+    data: {
+      orderId: id,
+      userId: session.user.id,
+      action: 'UPDATE',
+      details: `Admin ${session.user.name} patched order: ${changes.join(', ')}`,
+    }
+  })
+
   const serialized = serializeOrder(updated)
   // ── Notify client via SMS on status change (admin path) ───────────────
   if (updated.clientPhone && body.status && body.status !== prevOrder?.status) {

@@ -17,7 +17,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
   const { ref } = await params
   const raw = await prisma.order.findUnique({
     where: { receiptNumber: ref.toUpperCase() },
-    include: { colors: true, assignedTo: true },
+    include: { colors: true, assignedTo: true, createdBy: true },
   })
   if (!raw) notFound()
 
@@ -78,7 +78,10 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
             <div className="rounded-xl border border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400 mb-2">Order Details</p>
               {order.description && <p className="text-sm text-slate-700 dark:text-slate-300 mb-1">{order.description}</p>}
-              {order.dueDate && <p className="text-sm text-slate-500 dark:text-slate-400">Due: {fmtDate(order.dueDate)}</p>}
+              {order.dueDate && <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Due: {fmtDate(order.dueDate)}</p>}
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Ordered By: <span className="font-semibold">{order.createdByName || 'Online Booking'}</span>
+              </p>
             </div>
           </div>
 

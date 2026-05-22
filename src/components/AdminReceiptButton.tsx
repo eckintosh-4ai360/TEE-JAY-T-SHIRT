@@ -170,6 +170,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
       <div class="info-r"><span class="info-k">Service</span><span class="info-v">${getServiceLabel(order)}</span></div>
       <div class="info-r"><span class="info-k">Status</span><span class="info-v">${getStatusLabel(order)}</span></div>
       <div class="info-r"><span class="info-k">Due date</span><span class="info-v">${fmtD(order.dueDate)}</span></div>
+      <div class="info-r"><span class="info-k">Ordered By</span><span class="info-v">${order.createdByName || 'Online Booking'}</span></div>
       ${isPrinting ? `<div class="info-r"><span class="info-k">Unit price</span><span class="info-v">${fmtM(order.unitPrice)}</span></div>` : `<div class="info-r"><span class="info-k">Package price</span><span class="info-v">${fmtM(order.unitPrice)}</span></div>`}
     </div>
   </div>

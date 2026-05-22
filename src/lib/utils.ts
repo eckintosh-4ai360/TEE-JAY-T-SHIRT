@@ -26,6 +26,8 @@ export type SerializedOrder = {
   clientEmail: string | null
   assignedToId: string | null
   assignedToName: string | null
+  createdById: string | null
+  createdByName: string | null
   description: string | null
   dueDate: string | null
   status: string
@@ -40,7 +42,11 @@ export type SerializedOrder = {
 }
 
 export function serializeOrder(
-  order: Order & { colors: OrderColor[]; assignedTo?: { name: string } | null }
+  order: Order & {
+    colors: OrderColor[]
+    assignedTo?: { name: string } | null
+    createdBy?: { name: string } | null
+  }
 ): SerializedOrder {
   return {
     id: order.id,
@@ -59,6 +65,8 @@ export function serializeOrder(
     clientEmail: order.clientEmail ?? null,
     assignedToId: order.assignedToId ?? null,
     assignedToName: order.assignedTo?.name ?? null,
+    createdById: order.createdById ?? null,
+    createdByName: order.createdBy?.name ?? null,
     description: order.description ?? null,
     dueDate: order.dueDate?.toISOString() ?? null,
     status: order.status,
