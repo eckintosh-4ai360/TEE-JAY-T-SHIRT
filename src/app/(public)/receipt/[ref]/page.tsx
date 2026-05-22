@@ -54,6 +54,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ ref: s
                   <span className="text-sm font-black tracking-wider">TEE-JAY MULTIMEDIA</span>
                 </div>
                 <p className="text-[10px] uppercase tracking-widest opacity-80">Printing & Photography Services</p>
+                
               </div>
               <div className="text-right">
                 <p className="text-xs font-bold opacity-75 uppercase tracking-widest">Receipt</p>

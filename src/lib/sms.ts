@@ -6,12 +6,57 @@
 const MNOTIFY_API_KEY = process.env.MNOTIFY_API_KEY ?? ''
 const MNOTIFY_SENDER_ID = process.env.MNOTIFY_SENDER_ID?.trim() || 'TEE-JAY MUL'
 const MNOTIFY_BASE = 'https://api.mnotify.com/api/sms/quick'
-const APP_BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-  process.env.NEXTAUTH_URL?.trim() ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.trim()}`
-    : '')
+
+function firstHeaderValue(value: string | null): string {
+  return value?.split(',')[0]?.trim() || ''
+}
+
+function trimTrailingSlashes(value: string): string {
+  return value.replace(/\/+$/, '')
+}
+
+function isLocalHost(host: string): boolean {
+  return /^(localhost|127(?:\.\d{1,3}){3}|\[::1\])(?::\d+)?$/i.test(host)
+}
+
+function getConfiguredAppBaseUrl(): string {
+  const configured =
+    process.env.APP_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    process.env.NEXTAUTH_URL?.trim()
+
+  if (configured) return trimTrailingSlashes(configured)
+
+  const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim()
+  if (!vercelProductionUrl) return ''
+
+  return `https://${trimTrailingSlashes(vercelProductionUrl.replace(/^https?:\/\//i, ''))}`
+}
+
+export function resolveAppBaseUrl(request?: Request): string {
+  const configuredBaseUrl = getConfiguredAppBaseUrl()
+
+  if (!request) return configuredBaseUrl
+
+  try {
+    const url = new URL(request.url)
+    const forwardedHost = firstHeaderValue(request.headers.get('x-forwarded-host'))
+    const forwardedProto = firstHeaderValue(request.headers.get('x-forwarded-proto'))
+    const host = forwardedHost || request.headers.get('host')?.trim() || url.host
+    const protocol = forwardedProto || url.protocol.replace(/:$/, '') || 'https'
+
+    if (host && !isLocalHost(host)) {
+      return `${protocol}://${trimTrailingSlashes(host)}`
+    }
+
+    if (configuredBaseUrl) return configuredBaseUrl
+    if (host) return `${protocol}://${trimTrailingSlashes(host)}`
+  } catch {
+    return configuredBaseUrl
+  }
+
+  return configuredBaseUrl
+}
 
 interface SMSResult {
   ok: boolean
@@ -35,9 +80,9 @@ function normalizePhoneNumber(phone: string): string {
   return digits
 }
 
-function getReceiptUrl(receiptNumber: string): string {
+function getReceiptUrl(receiptNumber: string, appBaseUrl?: string): string {
   const path = `/receipt/${receiptNumber}`
-  return APP_BASE_URL ? `${APP_BASE_URL}${path}` : path
+  return appBaseUrl ? `${trimTrailingSlashes(appBaseUrl)}${path}` : path
 }
 
 /**
@@ -131,6 +176,7 @@ export interface OrderSMSContext {
   balance: string
   dueDate: string
   status?: string
+  appBaseUrl?: string
 }
 
 export interface WorkerAssignmentSMSContext {
@@ -140,6 +186,7 @@ export interface WorkerAssignmentSMSContext {
   serviceLabel: string
   dueDate: string
   description?: string
+  appBaseUrl?: string
 }
 
 /** Sent right after a client books an order */
@@ -150,7 +197,7 @@ export function buildOrderConfirmationSMS(ctx: OrderSMSContext): string {
     `Receipt: ${ctx.receiptNumber}\n` +
     `Total: ${ctx.totalAmount} | Paid: ${ctx.amountPaid} | Balance: ${ctx.balance}\n` +
     `Due: ${ctx.dueDate}\n` +
-    `Receipt: ${getReceiptUrl(ctx.receiptNumber)}\n` +
+    `Receipt: ${getReceiptUrl(ctx.receiptNumber, ctx.appBaseUrl)}\n` +
     `Thank you - Tee-Jay Multimedia`
   )
 }
@@ -162,7 +209,7 @@ export function buildStatusUpdateSMS(ctx: OrderSMSContext): string {
     `Service: ${ctx.serviceLabel}\n` +
     `Status: ${ctx.status}\n` +
     `Receipt: ${ctx.receiptNumber}\n` +
-    `Receipt: ${getReceiptUrl(ctx.receiptNumber)}\n` +
+    `Receipt: ${getReceiptUrl(ctx.receiptNumber, ctx.appBaseUrl)}\n` +
     `Tee-Jay Multimedia`
   )
 }
@@ -177,7 +224,7 @@ export function buildWorkerAssignmentSMS(ctx: WorkerAssignmentSMSContext): strin
   ]
   if (ctx.description) lines.push(`Details: ${ctx.description}`)
   lines.push(
-    `Order Receipt: ${getReceiptUrl(ctx.receiptNumber)}`,
+    `Order Receipt: ${getReceiptUrl(ctx.receiptNumber, ctx.appBaseUrl)}`,
     `Tee-Jay Multimedia`,
   )
   return lines.join('\n')

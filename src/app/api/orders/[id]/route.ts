@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { serializeOrder, fmtCurrency, fmtDate, getServiceLabel, sumSizeQuantities } from '@/lib/utils'
-import { sendSMS, buildStatusUpdateSMS, buildWorkerAssignmentSMS } from '@/lib/sms'
+import { sendSMS, buildStatusUpdateSMS, buildWorkerAssignmentSMS, resolveAppBaseUrl } from '@/lib/sms'
 import { STATUS_META, type OrderStatus } from '@/types'
 
 // ── GET /api/orders/[id] ──────────────────────────────────────────────────────
@@ -32,6 +32,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
   try {
     const body = await req.json()
+    const appBaseUrl = resolveAppBaseUrl(req)
     const {
       serviceCategory, printingType, printingTypeOther,
       photographyType, photographyTypeOther,
@@ -184,6 +185,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         serviceLabel:  getServiceLabel(serializeOrder(order)),
         dueDate:       order.dueDate ? fmtDate(order.dueDate.toISOString()) : 'TBD',
         description:   order.description ?? undefined,
+        appBaseUrl,
       })
       after(async () => {
         const result = await sendSMS([order.assignedTo!.phone!], workerMsg)
@@ -211,6 +213,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
+  const appBaseUrl = resolveAppBaseUrl(req)
 
   // Workers can only update status + notes on their assigned orders
   if (session.user?.role === 'WORKER') {
@@ -250,6 +253,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         balance:       fmtCurrency(serialized.balance),
         dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
         status:        statusLabel,
+        appBaseUrl,
       })
       after(async () => {
         const result = await sendSMS([updated.clientPhone!], msg)
@@ -315,6 +319,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       serviceLabel:  getServiceLabel(serialized),
       dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
       description:   updated.description ?? undefined,
+      appBaseUrl,
     })
     after(async () => {
       const result = await sendSMS([updated.assignedTo!.phone!], workerMsg)
@@ -339,6 +344,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       balance:       fmtCurrency(serialized.balance),
       dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
       status:        statusLabel,
+      appBaseUrl,
     })
     after(async () => {
       const result = await sendSMS([updated.clientPhone!], msg)

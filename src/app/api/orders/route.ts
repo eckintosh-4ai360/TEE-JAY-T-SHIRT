@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
 import { serializeOrder, generateReceiptNumber, fmtCurrency, fmtDate, getServiceLabel, sumSizeQuantities } from '@/lib/utils'
-import { sendSMS, buildOrderConfirmationSMS, buildWorkerAssignmentSMS } from '@/lib/sms'
+import { sendSMS, buildOrderConfirmationSMS, buildWorkerAssignmentSMS, resolveAppBaseUrl } from '@/lib/sms'
 import type { Prisma } from '@prisma/client'
 
 // ── GET /api/orders ────────────────────────────────────────────────────────────
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
     const body = await req.json()
+    const appBaseUrl = resolveAppBaseUrl(req)
     const {
       serviceCategory = 'PRINTING',
       printingType, printingTypeOther,
@@ -180,6 +181,7 @@ export async function POST(req: Request) {
         amountPaid:    fmtCurrency(serialized.amountPaid),
         balance:       fmtCurrency(serialized.balance),
         dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
+        appBaseUrl,
       })
       after(async () => {
         const result = await sendSMS([order.clientPhone!], msg)
@@ -204,6 +206,7 @@ export async function POST(req: Request) {
         serviceLabel:  getServiceLabel(serialized),
         dueDate:       serialized.dueDate ? fmtDate(serialized.dueDate) : 'TBD',
         description:   order.description ?? undefined,
+        appBaseUrl,
       })
       after(async () => {
         const result = await sendSMS([order.assignedTo!.phone!], workerMsg)
