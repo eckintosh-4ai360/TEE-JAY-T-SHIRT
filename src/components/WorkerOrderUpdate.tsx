@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { STATUS_META, type OrderStatus, type SerializedOrder } from '@/types'
-import { fmtDate, getServiceLabel, getStatusLabel } from '@/lib/utils'
+import { fmtDate, getOrderItems, getServiceLabel, getSingleServiceLabel } from '@/lib/utils'
 import { Loader2, ChevronLeft, Printer, Camera } from 'lucide-react'
 import Link from 'next/link'
 
@@ -18,6 +18,16 @@ export default function WorkerOrderUpdate({ order }: Props) {
   const [error,   setError]   = useState<string | null>(null)
 
   const isPrinting = order.serviceCategory === 'PRINTING'
+  const orderItems = getOrderItems(order)
+  const descriptionItems = orderItems
+    .map((item, index) => ({
+      id: `${index}-${item.category}-${item.type ?? 'service'}`,
+      label: orderItems.length > 1
+        ? `Item ${index + 1} - ${getSingleServiceLabel(item.category, item.type, item.typeOther)}`
+        : 'Description',
+      value: item.description?.trim(),
+    }))
+    .filter((item): item is { id: string; label: string; value: string } => Boolean(item.value))
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -57,7 +67,6 @@ export default function WorkerOrderUpdate({ order }: Props) {
           { label: 'Client',      value: order.clientName  },
           { label: 'Phone',       value: order.clientPhone },
           { label: 'Service',     value: getServiceLabel(order) },
-          { label: 'Description', value: order.description },
           { label: 'Due Date',    value: fmtDate(order.dueDate) },
         ].map(({ label, value }) => value ? (
           <div key={label} className="flex justify-between border-b border-slate-100 dark:border-white/5 pb-2.5 last:border-0 last:pb-0">
@@ -65,6 +74,24 @@ export default function WorkerOrderUpdate({ order }: Props) {
             <span className="font-semibold text-slate-900 dark:text-white text-right max-w-[200px]">{value}</span>
           </div>
         ) : null)}
+
+        {descriptionItems.length > 0 && (
+          <div className="pt-2 space-y-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Description</p>
+            <div className="space-y-3">
+              {descriptionItems.map((item) => (
+                <div key={item.id} className="border-b border-slate-100 dark:border-white/5 pb-3 last:border-0 last:pb-0">
+                  {descriptionItems.length > 1 && (
+                    <p className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1">{item.label}</p>
+                  )}
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white whitespace-pre-wrap break-words">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {isPrinting && order.colors.length > 0 && (
           <div className="pt-2">

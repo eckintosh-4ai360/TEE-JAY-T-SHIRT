@@ -2,8 +2,7 @@ import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/auth'
 import { prisma } from '@/lib/prisma'
-import { serializeOrder, fmtDate, getServiceLabel, getStatusLabel } from '@/lib/utils'
-import { STATUS_META } from '@/types'
+import { serializeOrder, fmtDate, getServiceLabel, getOrderDescriptionSummary } from '@/lib/utils'
 import Link from 'next/link'
 import { Box, Clock, CheckCircle2, Zap } from 'lucide-react'
 import OrderStatusSelect from '@/components/OrderStatusSelect'
@@ -87,12 +86,12 @@ export default async function WorkerDashboard() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {orders.map(o => {
-                  const meta = STATUS_META[o.status as keyof typeof STATUS_META]
+                  const description = getOrderDescriptionSummary(o)
                   return (
                     <tr key={o.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
                       <td className="py-3 pl-5 pr-3 font-semibold text-slate-900 dark:text-white">{o.clientName}</td>
                       <td className="py-3 px-3 text-xs text-slate-500">{getServiceLabel(o)}</td>
-                      <td className="py-3 px-3 text-slate-500 text-xs hidden sm:table-cell max-w-[160px] truncate">{o.description ?? '—'}</td>
+                      <td className="py-3 px-3 text-slate-500 text-xs hidden sm:table-cell max-w-[160px] truncate">{description ?? '—'}</td>
                       <td className="py-3 px-3">
                         <OrderStatusSelect orderId={o.id} currentStatus={o.status as any} />
                       </td>

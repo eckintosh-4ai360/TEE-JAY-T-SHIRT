@@ -183,6 +183,20 @@ export function getOrderItems(order: SerializedOrder): UnifiedOrderItem[] {
   ]
 }
 
+export function getOrderDescriptionSummary(order: SerializedOrder): string | null {
+  const descriptions = getOrderItems(order)
+    .map((item, index, items) => {
+      const description = item.description?.trim()
+      if (!description) return null
+      return items.length > 1 ? `Item ${index + 1}: ${description}` : description
+    })
+    .filter((description): description is string => Boolean(description))
+
+  if (descriptions.length > 0) return descriptions.join(' | ')
+
+  return order.description?.trim() || null
+}
+
 export function getSingleServiceLabel(category: string, type: string | null, typeOther: string | null): string {
   if (category === 'PHOTOGRAPHY') {
     if (!type) return 'Photography'
